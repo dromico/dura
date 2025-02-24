@@ -1,0 +1,80 @@
+section{
+	display:table-cell;
+	width:80%;
+	vertical-align:top;
+	border-right-width: 1px;
+	border-left-width: 1px;
+	border-right-style: solid;
+	border-left-style: solid;
+	border-right-color: #FFF;
+	border-left-color: #FFF;
+	padding-right: 8vw;
+	padding-top: 30px;
+	padding-bottom: 20px;
+	padding-left: 40px;
+	position:
+}
+
+
+section .row{
+	display: table;
+	width: 100%;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+section .row .column{
+	display: table-cell;
+	vertical-align:top;
+}
+
+.empatbiji{
+	width: 23%;	
+	}
+
+.tigabiji{
+	width: 32%;	
+	}
+
+.duabiji{
+	width: 48%;
+	}
+	
+.empty{
+	width: 2%;
+	}	
+	
+.box_style{
+	padding: 10px;
+	box-shadow:0px 0px 5px #CCC;
+	position:relative;
+	border-top-width:2px;
+	border-top-style: solid;
+	border-top-color: #e11d1d;
+	}	
+	
+.picture img{
+	width:100%;}
+	
+.box td{
+	padding:5px;
+	border: 1px solid #CCC;
+}	
+
+
+
+@media only screen and (max-width: 900px) {	
+	section{
+	width:auto;	
+	display: block;	
+	clear: both;
+	margin: 0px;
+	min-height:0px;
+	padding: 30px;
+}
+section .row .column,.empatbiji, .tigabiji, .duabiji, .empty{
+	display: block;
+	width:auto;
+}
+	
+}

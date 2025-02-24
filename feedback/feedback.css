@@ -1,0 +1,81 @@
+.feedbackform {
+	width: auto;	
+	margin: auto;
+}
+/****************************************************************/
+::-webkit-input-placeholder {font-family:Arial, Helvetica, sans-serif;}
+:-moz-placeholder {font-family:Arial, Helvetica, sans-serif;}
+::-moz-placeholder {font-family:Arial, Helvetica, sans-serif;}
+:-ms-input-placeholder {font-family:Arial, Helvetica, sans-serif;}
+
+/****************************************************************/
+.feedbackform input, .feedbackform textarea{
+	width: 97%;
+	border: 1px solid #CCCCCC;
+	border-radius:5px;
+	padding: 5px;
+	display: block;
+	margin-bottom: 7px;
+}
+
+/****************************************************************/
+.feedbackform input[type=file]::-webkit-file-upload-button {
+  visibility: hidden;
+  display:none;
+}
+.feedbackform input[type=file]:before {
+  content: 'Upload Resume';
+  display: inline-block;
+  background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 5px 8px;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+  text-shadow: 1px 1px #fff;
+  font-weight: 700;
+  font-size: 10pt;
+
+}
+.feedbackform input[type=file]:after {
+	content: ' ( Word or PDF only )';
+	font-size: 11px;
+	font-style: italic;
+}
+
+/****************************************************************/
+.feedbackform input[type=submit]{
+	width: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-top: 7px;
+	padding-right: 25px;
+	padding-bottom: 7px;
+	padding-left: 25px;
+	color: #FFF;
+	background-color: #ae0c21;
+}
+/****************************************************************/
+#captcha{
+	background-image: url(feedback/captcha.gif);
+	background-size: cover;
+	/* disable select */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	font-size: 28px;
+	color: #000;
+	padding-top: 7px;
+	padding-right: 25px;
+	padding-bottom: 7px;
+	padding-left: 25px;
+	text-align: center;
+	margin-bottom: 3px;
+	display: inline-block;
+	margin-bottom: 7px;
+}

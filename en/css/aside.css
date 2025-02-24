@@ -1,0 +1,32 @@
+aside{
+	display:table-cell;
+	width:20%;
+	vertical-align:top;
+	text-align:center;
+	background-image:url(bg.jpg);
+	background-repeat:repeat;
+	box-shadow: 
+	  0 1px 2px #fff, /*bottom external highlight*/
+	  0 -1px 1px #666, /*top external shadow*/ 
+	  inset 0 -1px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
+	  inset 0 1px 1px rgba(255,255,255,0.8); /*top internal highlight*/
+	/*background-image: -ms-linear-gradient(top, #FFF 0%, #484E34 100%);
+	background-image: -moz-linear-gradient(top, #FFF 0%, #484E34 100%);
+	background-image: -o-linear-gradient(top, #FFF 0%, #484E34 100%);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFF), color-stop(1, #484E34));
+	background-image: -webkit-linear-gradient(top, #FFF 0%, #484E34 100%);
+	background-image: linear-gradient(to bottom, #FFF 0%, #484E34 100%);*/
+	padding-left:8vw;
+
+	
+}
+
+
+
+@media only screen and (max-width: 900px) {	
+	aside{
+	width:auto;	
+	display: block;
+	clear: both;
+	padding-left:0vw;
+}

@@ -1,0 +1,88 @@
+/*--main menu----------------------------*/
+.main-menu{
+	padding: 0px;
+	text-align: left;
+	margin: 0px;
+}
+.main-menu li{
+	position: relative;
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-ms-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+	text-transform: uppercase;
+	overflow: hidden;
+	outline:0; /*disable the outline shit*/
+	background-color: #000;
+	margin-bottom: 1px;
+	color: #FFF;
+	box-shadow: 
+	  0 1px 2px #fff, /*bottom external highlight*/
+	  0 -1px 1px #666, /*top external shadow*/ 
+	  inset 0 -1px 1px rgba(0,0,0,0.5), /*bottom internal shadow*/ 
+	  inset 0 1px 1px rgba(255,255,255,0.8);
+	padding-top: 5px;
+	padding-right: 15px;
+	padding-bottom: 10px;
+	padding-left: 20px;
+}
+
+.main-menu li a, .main-menu li .withsub{
+	text-decoration: none;
+	color: #FFFFFF;
+	cursor:pointer;
+	display:block;
+	line-height:20px;
+}
+.main-menu li:hover{
+	background-color: #ae0c21;
+}
+
+/*--reveal submenu-----------------------*/
+.main-menu li:focus .sub-menu {
+    max-height: 999px;
+}
+
+/*--sub menu-----------------------------*/
+.sub-menu {
+	display:block;
+	-webkit-transition: all 0.9s ease;
+	-moz-transition: all 0.9s ease;
+	-o-transition: all 0.9s ease;
+	-ms-transition: all 0.9s ease;
+	transition: all 0.9s ease;
+	overflow:visible;
+	padding-left:2px;
+}
+
+.sub-menu a{
+	font-size:12px;
+	-webkit-transition: all 0.4s ease;
+	-moz-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	-ms-transition: all 0.4s ease;
+	transition: all 0.4s ease;
+	padding-left:10px;
+	background-image:url(../img/arrow.png);
+	background-position:0px 8px;
+	background-repeat:no-repeat;	
+}
+.sub-menu a:hover {
+	color:  #ffacb7;
+	background-image:url(../img/arrow2.png);
+}
+
+
+@media only screen and (max-width: 900px) {	
+	.main-menu{
+	position:
+	static;
+	}
+	
+	.sub-menu {
+	max-height: 0px;
+	overflow: hidden;
+	}
+
+}

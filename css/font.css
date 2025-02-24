@@ -1,0 +1,82 @@
+@import url(http://fonts.googleapis.com/css?family=Play:400,700);
+body{
+	font-family: 'Play', sans-serif;
+	font-size: 14px;
+	line-height: 22px;
+	color: #000;
+	font-weight:normal;
+	}
+
+h1{
+	font-size: 22px;
+	font-weight: normal;
+	color:#FFFFFF;
+	line-height: 22px;
+	text-transform: uppercase;
+	margin-bottom:0px;
+	margin-top:0px;
+	background: -webkit-linear-gradient(left,#b60000, #e11d1d); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(right,#b60000, #e11d1d); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(right, #b60000,#e11d1d); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(to right,#b60000, #e11d1d); /* Standard syntax (must be last) */
+	text-shadow:0px 0px 1px #000;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: #000;
+	padding-top: 5px;
+	padding-right: 15px;
+	padding-bottom:5px;
+	padding-left: 15px;	
+}
+
+h2{
+	font-size: 24px;
+	font-weight: normal;
+	color: #b20a21;	
+
+}
+
+h3{
+	color:#FFFFFF;
+	background-color:#000000;
+	font-size: 16px;
+	font-weight: normal;
+	margin-bottom:15px;
+	margin-top:0px;
+	padding-top: 5px;
+	padding-right: 15px;
+	padding-bottom:5px;
+	padding-left: 15px;	
+}
+
+a img{
+	transition: all 0.5s ease;
+	border-top-style: none;
+	border-right-style: none;
+	border-bottom-style: none;
+	border-left-style: none;
+	}
+a:hover img{
+	opacity:0.5;
+	-ms-transform: translate(0px,-5px); /* IE 9 */
+   	-webkit-transform: translate(0px,-5px); /* Safari */
+    transform: translate(0px,-5px);
+	}
+	
+.link a{
+	font-weight: normal;
+	color: #C00;
+	text-decoration: none;
+}
+.link a:hover{
+	color: #FF0000;
+	opacity:0.8;
+	text-decoration: underline;
+}
+
+p{
+	margin-top:5px;
+	text-align:left;}	
+	
+ul{
+	margin-left:-20px;}	
