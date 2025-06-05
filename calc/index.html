@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Durafloor (M) Sdn Bhd Cost Calculator</title>
+    <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #ff006e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #38b000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .card-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .card-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-header p {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            text-align: left;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        tr:hover td {
+            background-color: #f1f3f5;
+        }
+        
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-group span {
+            display: inline-block;
+            margin-right: 0.5rem;
+            color: #6c757d;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+        }
+        
+        .calculated {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .summary-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .summary-item.total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+        
+        .summary-item .label {
+            color: #6c757d;
+        }
+        
+        .summary-item .value {
+            font-weight: 600;
+        }
+        
+        .section-header {
+            margin: 2rem 0 1rem;
+            color: var(--dark-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .section-header:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsed .section-content {
+            max-height: 0;
+        }
+        
+        .expanded .section-content {
+            max-height: 2000px;
+        }
+        
+        .collapse-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-reset {
+            background: #f1f3f5;
+            color: #495057;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin: 0;
+            margin-left: 1rem;
+        }
+        
+        .btn-reset:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .rate-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .rate-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rate-item .label {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        .rate-item .value {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .section-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-left: auto;
+            padding-left: 1.5rem;
+        }
+
+        .section-buttons .btn {
+            margin: 0;
+            min-width: 100px;
+            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-normal);
+        }
+
+        .section-buttons .btn-reset {
+            min-width: 80px;
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            margin-left: 0;
+            font-weight: 500;
+        }
+
+        .section-buttons .btn-reset:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .button-container .btn {
+            min-width: 150px;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .card-header {
+                padding: 1rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            input {
+                padding: 0.4rem;
+                font-size: 0.9rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.25rem;
+                border-radius: 0.5rem;
+                background: rgba(255, 255, 255, 0.5);
+                margin: 1rem 0;
+            }
+
+            .section-header h2 {
+                font-size: 1.2rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .section-buttons {
+                margin-top: 0.75rem;
+                padding-left: 0;
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+
+            .section-buttons .btn {
+                width: 100%;
+                min-width: 0;
+                padding: 0.625rem;
+                font-size: 0.875rem;
+                margin: 0;
+            }
+
+            .section-buttons .btn-reset {
+                order: 2;
+            }
+            
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .card-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+                margin: 1.5rem 0;
+            }
+            
+            .button-container .btn {
+                width: 100%;
+                min-width: 0;
+                margin: 0;
+                padding: 0.75rem;
+                font-size: 0.875rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .summary-card, .rate-card {
+                padding: 1.2rem;
+            }
+            
+            .summary-item {
+                flex-direction: column;
+            }
+            
+            .summary-item .value {
+                margin-top: 0.3rem;
+            }
+            
+            /* Make tables responsive */
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 1rem;
+                border-radius: 5px;
+                padding: 0.5rem;
+                background: #fcfcfc;
+            }
+            
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            
+            td:before {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                content: attr(data-label);
+            }
+            
+            td:last-child {
+                border-bottom: 0;
+            }
+        }
+    </style>
+    <!-- Add these in the head section -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Add html2canvas for better PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Durafloor (M) Sdn Bhd Cost Calculator</h1>
+                <p>Calculate your flooring project costs with precision (All are in SQFT and FRUN)</p>
+            </div>
+            <div class="card-body">
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Main Flooring Installation</h2>
+                        <span class="collapse-icon">▼</span>
+                        <div class="section-buttons">
+                            <button class="btn btn-reset" id="reset-main">Reset</button>
+                            <button class="btn" onclick="addNewRow('mainFlooring')">Add Item</button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table id="mainFlooring">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>QTY</th>
+                                    <th>Cost (RM)</th>
+                                    <th>Total (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="wood-type" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 5px;">
+                                            <option value="WOOD">Wood</option>
+                                            <option value="VINYL">Roll</option>
+                                            <option value="LAMINATE">SPC</option>
+                                            <option value="SPC">Tiles</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="number" class="qty" value="0" data-item="wood"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="wood"></td>
+                                    <td class="calculated total-cost" id="wood-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 5px;">
+                                            <option value="ALUMINIUM">Aluminum Nosing</option>
+                                            <option value="PVC">PVC Nosing</option>
+                                        </select>
+                                    </td>
+                                    <td><input type="number" class="qty" value="0" data-item="alum"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="alum"></td>
+                                    <td class="calculated total-cost" id="alum-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Glue</td>
+                                    <td><input type="number" class="qty" value="0" data-item="glue"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="glue"></td>
+                                    <td class="calculated total-cost" id="glue-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Wax</td>
+                                    <td><input type="number" class="qty" value="0" data-item="wax"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="wax"></td>
+                                    <td class="calculated total-cost" id="wax-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Transportation</td>
+                                    <td><input type="number" class="qty" value="0" data-item="trans"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="trans"></td>
+                                    <td class="calculated total-cost" id="trans-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Workmanship</td>
+                                    <td><input type="number" class="qty" value="0" data-item="work"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="work"></td>
+                                    <td class="calculated total-cost" id="work-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Commission</td>
+                                    <td><input type="number" class="qty" value="0" data-item="comm"></td>
+                                    <td>
+                                        <select class="cost commission-select" data-item="comm" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 5px;">
+                                            <option value="0.30">0.30</option>
+                                            <option value="0.50">0.50</option>
+                                        </select>
+                                    </td>
+                                    <td class="calculated total-cost" id="comm-total">0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="section collapsed">
+                    <div class="section-header" onclick="toggleSection(this.parentElement)">
+                        <h2>Self-Leveling</h2>
+                        <span class="collapse-icon">▼</span>
+                        <div class="section-buttons">
+                            <button class="btn btn-reset" id="reset-level">Reset</button>
+                            <button class="btn" onclick="addNewRow('selfLeveling')">Add Item</button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table id="selfLeveling">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>QTY</th>
+                                    <th>Cost (RM)</th>
+                                    <th>Total (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Self-leveling</td>
+                                    <td><input type="number" class="qty" value="0" data-item="level"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="level"></td>
+                                    <td class="calculated total-cost" id="level-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Primer</td>
+                                    <td><input type="number" class="qty" value="0" data-item="primer"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="primer"></td>
+                                    <td class="calculated total-cost" id="primer-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Labour charges</td>
+                                    <td><input type="number" class="qty" value="0" data-item="levellabor"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="levellabor"></td>
+                                    <td class="calculated total-cost" id="levellabor-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Commission</td>
+                                    <td><input type="number" class="qty" value="0" data-item="levelcomm"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="levelcomm"></td>
+                                    <td class="calculated total-cost" id="levelcomm-total">0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="section collapsed">
+                    <div class="section-header" onclick="toggleSection(this.parentElement)">
+                        <h2>Skirting</h2>
+                        <span class="collapse-icon">▼</span>
+                        <div class="section-buttons">
+                            <button class="btn btn-reset" id="reset-skirting">Reset</button>
+                            <button class="btn" onclick="addNewRow('skirtingTable')">Add Item</button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table id="skirtingTable">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>QTY</th>
+                                    <th>Cost (RM)</th>
+                                    <th>Total (RM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Skirting</td>
+                                    <td><input type="number" class="qty" value="0" data-item="skirting"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="skirting"></td>
+                                    <td class="calculated total-cost" id="skirting-total">0.00</td>
+                                </tr>
+                      Foot Run         <tr>
+                                    <td>Silicon/Maxbond</td>
+                                    <td><input type="number" class="qty" value="0" data-item="silicon"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="silicon"></td>
+                                    <td class="calculated total-cost" id="silicon-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Workmanship</td>
+                                    <td><input type="number" class="qty" value="0" data-item="skirtingwork"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="skirtingwork"></td>
+                                    <td class="calculated total-cost" id="skirtingwork-total">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Commission</td>
+                                    <td><input type="number" class="qty" value="0" data-item="skirtingcomm"></td>
+                                    <td><input type="number" class="cost" value="0" data-item="skirtingcomm"></td>
+                                    <td class="calculated total-cost" id="skirtingcomm-total">0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="button-container" style="display: flex; margin-top: 1.5rem; justify-content: space-between; flex-wrap: wrap;">
+                    <button class="btn" id="calculate-btn">Calculate Total</button>
+                    <button class="btn" id="generate-pdf" style="background: linear-gradient(90deg, #ff006e, #8338ec);">Generate Quotation PDF</button>
+                </div>
+                
+                <div class="summary-card">
+                    <h2>Project Summary</h2>
+                    <div class="summary-item">
+                        <div class="label">Main Flooring Subtotal:</div>
+                        <div class="value" id="main-subtotal">RM 0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Self-Leveling Subtotal:</div>
+                        <div class="value" id="level-subtotal">RM 0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Skirting Subtotal:</div>
+                        <div class="value" id="skirting-subtotal">RM 0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Total (Before Profit):</div>
+                        <div class="value" id="total-before-profit">RM 0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="label">Profit (15%):</div>
+                        <div class="value" id="profit-amount">RM 0.00</div>
+                    </div>
+                    <div class="summary-item total">
+                        <div class="label">Grand Total:</div>
+                        <div class="value" id="grand-total">RM 0.00</div>
+                    </div>
+                </div>
+                
+                <div class="rate-card">
+                    <h3>Rate Per Square Foot</h3>
+                    <div class="rate-item">
+                        <div class="label">Total Area (sqft):</div>
+                        <div class="value">
+                            <input type="number" id="total-area" value="0" style="width: 100px">
+                        </div>
+                    </div>
+                    <div class="rate-item">
+                        <div class="label">Main Flooring Rate:</div>
+                        <div class="value" id="main-rate">RM 0.00/sqft</div>
+                    </div>
+                    <div class="rate-item">
+                        <div class="label">Self-Leveling Rate:</div>
+                        <div class="value" id="level-rate">RM 0.00/sqft</div>
+                    </div>
+                    <div class="rate-item">
+                        <div class="label">Total Rate:</div>
+                        <div class="value" id="total-rate">RM 0.00/sqft</div>
+                    </div>
+                </div>
+                
+                <div class="rate-card">
+                    <h3>Skirting Rate (Foot Run)</h3>
+                    <div class="rate-item">
+                        <div class="label">Total Foot Run:</div>
+                        <div class="value">
+                            <input type="number" id="total-foot-run" value="0" style="width: 100px">
+                        </div>
+                    </div>
+                    <div class="rate-item">
+                        <div class="label">Skirting Rate:</div>
+                        <div class="value" id="skirting-rate">RM 0.00/frun</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to add new row to a section
+        function addNewRow(sectionId) {
+            const tbody = document.querySelector(`#${sectionId} tbody`);
+            const newRow = document.createElement('tr');
+            
+            // Create a unique identifier for this row
+            const uniqueId = `custom-${Date.now()}`;
+            
+            newRow.innerHTML = `
+                <td><input type="text" class="item-name" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 5px;" placeholder="Item Name"></td>
+                <td><input type="number" class="qty" value="0" data-item="${uniqueId}"></td>
+                <td><input type="number" class="cost" value="0" data-item="${uniqueId}"></td>
+                <td class="calculated total-cost" id="${uniqueId}-total">0.00</td>
+                <td><button onclick="deleteRow(this)" class="btn btn-reset" style="margin: 0;">Delete</button></td>
+            `;
+            
+            tbody.appendChild(newRow);
+            // Add event listeners to new inputs and selects
+            const newInputs = newRow.querySelectorAll('input.qty, input.cost');
+            newInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateItemTotal(this);
+                    calculateAll();
+                });
+            });
+
+            const newSelects = newRow.querySelectorAll('select');
+            newSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const row = this.closest('tr');
+                    const qtyInput = row.querySelector('.qty');
+                    if (qtyInput) {
+                        updateItemTotal(qtyInput);
+                        calculateAll();
+                    }
+                });
+            });
+            
+            // Update data-labels for mobile view
+            const headerText = document.querySelector(`#${sectionId} thead tr`).querySelectorAll('th');
+            newRow.querySelectorAll('td').forEach((cell, index) => {
+                cell.setAttribute('data-label', headerText[index].textContent);
+            });
+
+            // Initialize the calculation for this row
+            updateItemTotal(newRow.querySelector('.qty'));
+            calculateAll();
+        }
+        
+        // Function to delete a row
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            calculateAll();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize buttons and inputs
+            const calculateBtn = document.getElementById('calculate-btn');
+            const totalAreaInput = document.getElementById('total-area');
+            const totalFootRunInput = document.getElementById('total-foot-run');
+            const resetMainBtn = document.getElementById('reset-main');
+            const resetLevelBtn = document.getElementById('reset-level');
+            const resetSkirtingBtn = document.getElementById('reset-skirting');
+            const generatePdfBtn = document.getElementById('generate-pdf');
+            
+            // Initialize all input fields
+            const inputs = document.querySelectorAll('input.qty, input.cost');
+            
+            // Add event listeners to all input fields for immediate calculation
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateItemTotal(this);
+                    calculateAll();
+                });
+            });
+
+            // Add event listeners to all select elements including commission selects
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', function() {
+                    if (select.classList.contains('commission-select')) {
+                        updateItemTotal(this);
+                    } else {
+                        const row = this.closest('tr');
+                        const qtyInput = row.querySelector('.qty');
+                        if (qtyInput) {
+                            updateItemTotal(qtyInput);
+                        }
+                    }
+                    calculateAll();
+                });
+            });
+            
+            // Add debounce utility function to improve performance
+            function debounce(func, wait = 300) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+            
+            // Optimize the calculation function for smoother performance
+            const calculateAll = debounce(function() {
+                // Calculate all individual totals first
+                document.querySelectorAll('tr').forEach(row => {
+                    const qtyInput = row.querySelector('.qty');
+                    if (qtyInput) {
+                        updateItemTotal(qtyInput);
+                    }
+                });
+                
+                // Calculate section subtotals
+                const mainFlooringTotal = calculateSectionTotal('mainFlooring');
+                const selfLevelingTotal = calculateSectionTotal('selfLeveling');
+                const skirtingTotal = calculateSectionTotal('skirtingTable');
+                
+                // Update the subtotal displays with animation
+                animateValueChange('main-subtotal', mainFlooringTotal);
+                animateValueChange('level-subtotal', selfLevelingTotal);
+                animateValueChange('skirting-subtotal', skirtingTotal);
+                
+                // Calculate total before profit
+                const totalBeforeProfit = mainFlooringTotal + selfLevelingTotal + skirtingTotal;
+                animateValueChange('total-before-profit', totalBeforeProfit);
+                
+                // Calculate profit (15%)
+                const profit = totalBeforeProfit * 0.15;
+                animateValueChange('profit-amount', profit);
+                
+                // Calculate grand total
+                const grandTotal = totalBeforeProfit + profit;
+                animateValueChange('grand-total', grandTotal);
+                
+                // Calculate rates per square foot
+                calculateRates();
+                
+                // Visual feedback for calculation
+                const calculateBtn = document.getElementById('calculate-btn');
+                calculateBtn.textContent = "✓ Updated";
+                calculateBtn.style.background = "linear-gradient(90deg, var(--success-color), var(--primary-color))";
+                
+                setTimeout(() => {
+                    calculateBtn.textContent = "Calculate Total";
+                    calculateBtn.style.background = "linear-gradient(90deg, var(--primary-color), var(--secondary-color))";
+                }, 1500);
+            }, 300);
+            
+            // Initialize mobile view data labels
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const headerText = row.closest('table').querySelectorAll('th');
+                row.querySelectorAll('td').forEach((cell, index) => {
+                    cell.setAttribute('data-label', headerText[index].textContent);
+                });
+            });
+            
+            // Add event listener to calculate button for manual triggering if needed
+            calculateBtn.addEventListener('click', calculateAll);
+            totalAreaInput.addEventListener('input', calculateRates);
+            totalFootRunInput.addEventListener('input', calculateRates);
+            
+            // Add event listener to generate PDF button
+            generatePdfBtn.addEventListener('click', generateQuotation);
+            
+            // Add event listeners to reset buttons
+            resetMainBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent section toggle
+                resetSection('mainFlooring');
+            });
+            
+            resetLevelBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent section toggle
+                resetSection('selfLeveling');
+            });
+            
+            resetSkirtingBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent section toggle
+                resetSection('skirtingTable');
+            });
+            
+            // Initial calculation to ensure all values are shown correctly on load
+            setTimeout(calculateAll, 100);
+            
+            // Function to update individual item total with animation
+            function updateItemTotal(element) {
+                const row = element.closest('tr');
+                if (!row) return;
+
+                const qtyInput = row.querySelector('.qty');
+                const costInput = row.querySelector('.cost');
+                const costSelect = row.querySelector('.commission-select');
+                const totalCell = row.querySelector('.total-cost');
+                
+                if (!qtyInput || !totalCell) return;
+                
+                const qty = parseFloat(qtyInput.value) || 0;
+                let cost = 0;
+                
+                if (costSelect) {
+                    cost = parseFloat(costSelect.value) || 0;
+                } else if (costInput) {
+                    cost = parseFloat(costInput.value) || 0;
+                }
+                
+                const total = qty * cost;
+                const oldValue = parseCurrency(totalCell.textContent);
+                
+                // Animate only if there's a significant change
+                if (Math.abs(oldValue - total) > 0.01) {
+                    totalCell.style.transition = 'background-color 0.3s ease';
+                    totalCell.style.backgroundColor = '#ffeb3b';
+                    
+                    // Set the new value
+                    totalCell.textContent = formatCurrency(total);
+                    
+                    // Reset background color after animation
+                    setTimeout(() => {
+                        totalCell.style.backgroundColor = '';
+                    }, 300);
+                } else {
+                    totalCell.textContent = formatCurrency(total);
+                }
+            }
+            
+            // Optimize the calculation function for smoother performance
+            const calculateAll = debounce(function() {
+                // Calculate all individual totals first
+                document.querySelectorAll('tr').forEach(row => {
+                    const qtyInput = row.querySelector('.qty');
+                    if (qtyInput) {
+                        updateItemTotal(qtyInput);
+                    }
+                });
+                
+                // Calculate section subtotals
+                const mainFlooringTotal = calculateSectionTotal('mainFlooring');
+                const selfLevelingTotal = calculateSectionTotal('selfLeveling');
+                const skirtingTotal = calculateSectionTotal('skirtingTable');
+                
+                // Update the subtotal displays with animation
+                animateValueChange('main-subtotal', mainFlooringTotal);
+                animateValueChange('level-subtotal', selfLevelingTotal);
+                animateValueChange('skirting-subtotal', skirtingTotal);
+                
+                // Calculate total before profit
+                const totalBeforeProfit = mainFlooringTotal + selfLevelingTotal + skirtingTotal;
+                animateValueChange('total-before-profit', totalBeforeProfit);
+                
+                // Calculate profit (15%)
+                const profit = totalBeforeProfit * 0.15;
+                animateValueChange('profit-amount', profit);
+                
+                // Calculate grand total
+                const grandTotal = totalBeforeProfit + profit;
+                animateValueChange('grand-total', grandTotal);
+                
+                // Calculate rates per square foot
+                calculateRates();
+                
+                // Visual feedback for calculation
+                const calculateBtn = document.getElementById('calculate-btn');
+                calculateBtn.textContent = "✓ Updated";
+                calculateBtn.style.background = "linear-gradient(90deg, var(--success-color), var(--primary-color))";
+                
+                setTimeout(() => {
+                    calculateBtn.textContent = "Calculate Total";
+                    calculateBtn.style.background = "linear-gradient(90deg, var(--primary-color), var(--secondary-color))";
+                }, 1500);
+            }, 300);
+            
+            // Helper function to animate value changes
+            function animateValueChange(elementId, newValue) {
+                const element = document.getElementById(elementId);
+                const oldValue = parseCurrency(element.textContent);
+                
+                // Only animate if there's a significant change
+                if (Math.abs(oldValue - newValue) > 0.01) {
+                    element.style.transition = 'all 0.5s ease';
+                    element.style.transform = 'scale(1.1)';
+                    element.style.color = 'var(--accent-color)';
+                    
+                    // Set the new value
+                    element.textContent = 'RM ' + formatCurrency(newValue);
+                    
+                    // Reset styles after animation
+                    setTimeout(() => {
+                        element.style.transform = '';
+                        element.style.color = '';
+                    }, 500);
+                } else {
+                    element.textContent = 'RM ' + formatCurrency(newValue);
+                }
+            }
+            
+            // Function to calculate section total
+            function calculateSectionTotal(sectionId) {
+                const totalCells = document.querySelectorAll(`#${sectionId} .total-cost`);
+                let sectionTotal = 0;
+                
+                totalCells.forEach(cell => {
+                    sectionTotal += parseCurrency(cell.textContent);
+                });
+                
+                return sectionTotal;
+            }
+            
+            // Function to calculate rates per square foot
+            function calculateRates() {
+                const totalArea = parseFloat(document.getElementById('total-area').value) || 0;
+                const totalFootRun = parseFloat(document.getElementById('total-foot-run').value) || 0;
+                
+                if (totalArea === 0) {
+                    document.getElementById('main-rate').textContent = 'RM 0.00/sqft';
+                    document.getElementById('level-rate').textContent = 'RM 0.00/sqft';
+                    document.getElementById('total-rate').textContent = 'RM 0.00/sqft';
+                }
+
+                if (totalFootRun === 0) {
+                    document.getElementById('skirting-rate').textContent = 'RM 0.00/frun';
+                }
+
+                if (totalArea === 0 && totalFootRun === 0) {
+                    return;
+                }
+                
+                const mainFlooringTotal = calculateSectionTotal('mainFlooring');
+                const selfLevelingTotal = calculateSectionTotal('selfLeveling');
+                const skirtingTotal = calculateSectionTotal('skirtingTable');
+                
+                // Calculate profit for each section
+                const mainFlooringWithProfit = mainFlooringTotal * 1.15;
+                const selfLevelingWithProfit = selfLevelingTotal * 1.15;
+                const skirtingWithProfit = skirtingTotal * 1.15;
+                
+                // Calculate rates
+                const mainRate = totalArea > 0 ? mainFlooringWithProfit / totalArea : 0;
+                const levelRate = totalArea > 0 ? selfLevelingWithProfit / totalArea : 0;
+                const skirtingRate = totalFootRun > 0 ? skirtingWithProfit / totalFootRun : 0;  // Calculate per foot run
+                const totalRate = mainRate + levelRate;  // Total rate excludes skirting rate
+                
+                // Update rate displays with animation
+                animateRateChange('main-rate', mainRate);
+                animateRateChange('level-rate', levelRate);
+                animateRateChange('skirting-rate', skirtingRate);
+                animateRateChange('total-rate', totalRate);
+            }
+            
+            // Helper function to animate rate changes
+            function animateRateChange(elementId, newRate) {
+                const element = document.getElementById(elementId);
+                const oldRateText = element.textContent;
+                const oldRate = parseFloat(oldRateText.replace(/[^\d.-]/g, '')) || 0;
+                
+                // Only animate if there's a significant change
+                if (Math.abs(oldRate - newRate) > 0.01) {
+                    element.style.transition = 'all 0.5s ease';
+                    element.style.transform = 'scale(1.1)';
+                    element.style.color = 'var(--accent-color)';
+                    
+                    // Set the new value
+                    const unit = elementId === 'skirting-rate' ? '/frun' : '/sqft';
+                    element.textContent = 'RM ' + formatCurrency(newRate) + unit;
+                    
+                    // Reset styles after animation
+                    setTimeout(() => {
+                        element.style.transform = '';
+                        element.style.color = '';
+                    }, 500);
+                } else {
+                    const unit = elementId === 'skirting-rate' ? '/frun' : '/sqft';
+                    element.textContent = 'RM ' + formatCurrency(newRate) + unit;
+                }
+            }
+            
+            // Function to reset a section
+            function resetSection(sectionId) {
+                const sectionInputs = document.querySelectorAll(`#${sectionId} input.qty, #${sectionId} input.cost`);
+                
+                // Show confirmation alert
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You're about to reset all values in this section.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: 'var(--accent-color)',
+                    cancelButtonColor: '#ccc',
+                    confirmButtonText: 'Yes, reset it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Reset all inputs in section
+                        sectionInputs.forEach(input => {
+                            input.value = 0;
+                            // Add a brief highlight effect
+                            input.style.transition = 'background-color 0.3s ease';
+                            input.style.backgroundColor = '#f8d7da';
+                            setTimeout(() => {
+                                input.style.backgroundColor = '';
+                            }, 300);
+                            updateItemTotal(input);
+                        });
+                        
+                        // Recalculate all totals
+                        calculateAll();
+                        
+                        // Show success message
+                        Swal.fire(
+                            'Reset!',
+                            'Section has been reset successfully.',
+                            'success'
+                        );
+                    }
+                });
+            }
+            
+            // Helper function to format currency
+            function formatCurrency(value) {
+                return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            }
+            
+            // Helper function to parse currency strings
+            function parseCurrency(value) {
+                if (typeof value === 'string') {
+                    return parseFloat(value.replace(/[^\d.-]/g, '')) || 0;
+                }
+                return parseFloat(value) || 0;
+            }
+        });
+        
+        // Function to toggle section collapse/expand
+        function toggleSection(section) {
+            if (section.classList.contains('collapsed')) {
+                section.classList.remove('collapsed');
+                section.classList.add('expanded');
+            } else {
+                section.classList.remove('expanded');
+                section.classList.add('collapsed');
+            }
+        }
+    </script>
+    
+    <script>
+        // Helper functions for PDF generation
+        function parseCurrency(value) {
+            if (typeof value === 'string') {
+                return parseFloat(value.replace(/[^\d.-]/g, '')) || 0;
+            }
+            return parseFloat(value) || 0;
+        }
+        
+        function formatCurrency(value) {
+            return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+        
+        // PDF Generation Functions
+        function generateQuotation() {
+            Swal.fire({
+                title: 'Client Information',
+                html: `
+                <input id="client-name" class="swal2-input" placeholder="Client Name">
+                <input id="client-address" class="swal2-input" placeholder="Client Company Name">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: 'var(--accent-color)',
+                confirmButtonText: 'Generate Quotation',
+                preConfirm: () => {
+                    return {
+                        companyName: 'Durafloor (M) Sdn Bhd',
+                        companyAddress: '1, Jalan Sb Indah 5/2, Taman SB Indah, 43300 Seri Kembangan, Selangor',
+                        companyPhone: '013-3682046',
+                        companyEmail: 'durafloor@hotmail.com',
+                        clientName: document.getElementById('client-name').value || 'Client Name',
+                        clientAddress: document.getElementById('client-address').value || 'Client Company Name'
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    createPDF(result.value);
+                }
+            });
+        }
+        
+        function createPDF(companyInfo) {
+            try {
+                // Ensure jsPDF is available
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF library not loaded properly');
+                }
+                
+                // Import jsPDF from the loaded script
+                const { jsPDF } = window.jspdf;
+                
+                // Create a new PDF document
+                const doc = new jsPDF();
+                
+                // Set fixed-width font for alignment
+                doc.setFont("helvetica", "normal");
+                
+                // Get current date and calculate expiry date (30 days from now)
+                const today = new Date();
+                const expiryDate = new Date();
+                expiryDate.setDate(today.getDate() + 30);
+                
+                // Set up document properties
+                doc.setProperties({
+                    title: 'Flooring Quotation',
+                    subject: 'Quotation for flooring services',
+                    author: companyInfo.companyName,
+                    creator: 'Durafloor (M) Sdn Bhd Cost Calculator'
+                });
+                
+                // Add company logo/header
+                doc.setFillColor(41, 128, 185); // Blue header
+                doc.rect(0, 0, 210, 40, 'F');
+                
+                // Add company details - only include non-empty fields
+                doc.setTextColor(255, 255, 255); // White text
+                doc.setFontSize(22);
+                doc.setFont("helvetica", 'bold');
+                doc.text(companyInfo.companyName, 15, 15);
+                
+                doc.setFontSize(10);
+                doc.setFont("helvetica", 'normal');
+                let companyDetailY = 22;
+                
+                if (companyInfo.companyAddress && companyInfo.companyAddress.trim() !== '') {
+                    doc.text(companyInfo.companyAddress, 15, companyDetailY);
+                    companyDetailY += 5;
+                }
+                
+                if (companyInfo.companyPhone && companyInfo.companyPhone.trim() !== '') {
+                    doc.text(`Phone: ${companyInfo.companyPhone}`, 15, companyDetailY);
+                    companyDetailY += 5;
+                }
+                
+                if (companyInfo.companyEmail && companyInfo.companyEmail.trim() !== '') {
+                    doc.text(`Email: ${companyInfo.companyEmail}`, 15, companyDetailY);
+                }
+                
+                // Add document title
+                doc.setTextColor(0, 0, 0); // Black text
+                doc.setFontSize(18);
+                doc.setFont("helvetica", 'bold');
+                doc.text('VINYL FLOORING QUOTATION', 105, 55, { align: 'center' });
+                
+                // Add quotation details
+                doc.setFontSize(10);
+                doc.setFont("helvetica", 'normal');
+                doc.setDrawColor(200, 200, 200);
+                doc.line(15, 65, 195, 65);
+                
+                // Client information - only include if provided
+                if ((companyInfo.clientName && companyInfo.clientName.trim() !== '') || 
+                    (companyInfo.clientAddress && companyInfo.clientAddress.trim() !== '')) {
+                    
+                    doc.setFont("helvetica", 'bold');
+                    doc.text('CLIENT:', 15, 75);
+                    doc.setFont("helvetica", 'normal');
+                    
+                    let clientDetailY = 80;
+                    if (companyInfo.clientName && companyInfo.clientName.trim() !== '') {
+                        doc.text(companyInfo.clientName, 15, clientDetailY);
+                        clientDetailY += 5;
+                    }
+                    
+                    if (companyInfo.clientAddress && companyInfo.clientAddress.trim() !== '') {
+                        doc.text(companyInfo.clientAddress, 15, clientDetailY);
+                    }
+                }
+                
+                // Quotation information
+                doc.setFont("helvetica", 'bold');
+                doc.text('QUOTATION DETAILS:', 115, 75);
+                doc.setFont("helvetica", 'normal');
+                doc.text(`Quotation No: QT-${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}`, 115, 80);
+                doc.text(`Date: ${today.toLocaleDateString()}`, 115, 85);
+                doc.text(`Valid Until: ${expiryDate.toLocaleDateString()}`, 115, 90);
+                
+                // Add table header
+                doc.setFillColor(240, 240, 240);
+                doc.rect(15, 100, 180, 10, 'F');
+                doc.setFont("helvetica", 'bold');
+                
+                // Define column positions for better alignment
+                const colDesc = 20;
+                const colQty = 110;
+                const colPrice = 140;
+                const colTotal = 175;
+                
+                doc.text('DESCRIPTION', colDesc, 107);
+                doc.text('QTY', colQty, 107, { align: 'center' });
+                doc.text('PRICE (RM)', colPrice, 107, { align: 'center' });
+                doc.text('TOTAL (RM)', colTotal, 107, { align: 'right' });
+                
+                // Get all the calculated values
+                const mainSubtotal = parseCurrency(document.getElementById('main-subtotal').textContent);
+                const levelSubtotal = parseCurrency(document.getElementById('level-subtotal').textContent);
+                const skirtingSubtotal = parseCurrency(document.getElementById('skirting-subtotal').textContent);
+                const totalBeforeProfit = mainSubtotal + levelSubtotal + skirtingSubtotal;
+                const profit = totalBeforeProfit * 0.15;
+                const grandTotal = totalBeforeProfit + profit;
+
+                // Table items with proper alignment
+                let y = 115;
+                
+                // Main flooring section - only include if it has items
+                const mainItems = getItemsFromSection('mainFlooring');
+                if (mainItems.length > 0) {
+                    doc.setFont("helvetica", 'bold');
+                    doc.text('Main Flooring', colDesc, y);
+                    doc.text(formatCurrency(mainSubtotal), colTotal, y, { align: 'right' });
+                    y += 10;
+                    
+                    mainItems.forEach(item => {
+                        doc.setFont("helvetica", 'normal');
+                        doc.text(`- ${item.name}`, colDesc + 5, y);
+                        doc.text(item.qty.toFixed(2), colQty, y, { align: 'center' });
+                        doc.text(formatCurrency(item.cost), colPrice, y, { align: 'center' });
+                        doc.text(formatCurrency(item.total), colTotal, y, { align: 'right' });
+                        y += 7;
+                        
+                        // Check if we need a page break
+                        if (y > 270) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                    });
+                }
+                
+                // Self-leveling section - only include if it has items
+                const levelItems = getItemsFromSection('selfLeveling');
+                if (levelItems.length > 0) {
+                    y += 3;
+                    doc.setFont("helvetica", 'bold');
+                    doc.text('Self-Leveling', colDesc, y);
+                    doc.text(formatCurrency(levelSubtotal), colTotal, y, { align: 'right' });
+                    y += 10;
+                    
+                    levelItems.forEach(item => {
+                        doc.setFont("helvetica", 'normal');
+                        doc.text(`- ${item.name}`, colDesc + 5, y);
+                        doc.text(item.qty.toFixed(2), colQty, y, { align: 'center' });
+                        doc.text(formatCurrency(item.cost), colPrice, y, { align: 'center' });
+                        doc.text(formatCurrency(item.total), colTotal, y, { align: 'right' });
+                        y += 7;
+                        
+                        // Check if we need a page break
+                        if (y > 270) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                    });
+                }
+                
+                // Skirting section - only include if it has items
+                const skirtingItems = getItemsFromSection('skirtingTable');
+                if (skirtingItems.length > 0) {
+                    y += 3;
+                    doc.setFont("helvetica", 'bold');
+                    doc.text('Skirting', colDesc, y);
+                    doc.text(formatCurrency(skirtingSubtotal), colTotal, y, { align: 'right' });
+                    y += 10;
+                    
+                    skirtingItems.forEach(item => {
+                        doc.setFont("helvetica", 'normal');
+                        doc.text(`- ${item.name}`, colDesc + 5, y);
+                        doc.text(item.qty.toFixed(2), colQty, y, { align: 'center' });
+                        doc.text(formatCurrency(item.cost), colPrice, y, { align: 'center' });
+                        doc.text(formatCurrency(item.total), colTotal, y, { align: 'right' });
+                        y += 7;
+                        
+                        // Check if we need a page break
+                        if (y > 270) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                    });
+                }
+                
+                // Add totals
+                y += 10;
+                doc.line(15, y, 195, y);
+                y += 7;
+                
+                doc.setFont("helvetica", 'normal');
+                doc.text('Subtotal:', 130, y);
+                doc.text(formatCurrency(totalBeforeProfit), colTotal, y, { align: 'right' });
+                y += 7;
+                
+                doc.text('Profit (15%):', 130, y);
+                doc.text(formatCurrency(profit), colTotal, y, { align: 'right' });
+                y += 7;
+                
+                doc.line(130, y, 195, y);
+                y += 7;
+                
+                doc.setFont("helvetica", 'bold');
+                doc.text('GRAND TOTAL:', 130, y);
+                doc.text(formatCurrency(grandTotal), colTotal, y, { align: 'right' });
+                
+                // Add footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setFont("helvetica", 'normal');
+                    doc.text(`This quotation is valid for 30 days from the date of issue. Terms and conditions apply.`, 105, 285, { align: 'center' });
+                    doc.text(`Page ${i} of ${pageCount}`, 195, 290, { align: 'right' });
+                }
+                
+                // Use a more reliable method to trigger the download
+                const pdfBlob = doc.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                
+                // Create a temporary link element to trigger the download
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pdfUrl;
+                downloadLink.download = `Flooring_Quotation_${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}.pdf`;
+                
+                // Append to the document, click, and remove
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(pdfUrl);
+                }, 100);
+                
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Your quotation PDF has been generated and downloaded.',
+                    icon: 'success',
+                    confirmButtonColor: 'var(--accent-color)'
+                });
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                
+                // Show error message with troubleshooting steps
+                Swal.fire({
+                    title: 'PDF Generation Failed',
+                    html: `
+                        <p>There was an error generating the PDF: ${error.message}</p>
+                        <p>Please try the following troubleshooting steps:</p>
+                        <ol style="text-align: left; margin-top: 10px;">
+                            <li>Check your internet connection to ensure the PDF libraries are loaded properly.</li>
+                            <li>Try using a different browser (Chrome or Firefox recommended).</li>
+                            <li>Disable any ad-blockers or download blockers that might be preventing the PDF download.</li>
+                            <li>Make sure you've entered some values in the calculator before generating the PDF.</li>
+                            <li>Clear your browser cache and reload the page.</li>
+                        </ol>
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: 'var(--accent-color)'
+                });
+            }
+        }
+        
+        // Helper function to get non-zero items from a section with selected dropdown values
+        function getItemsFromSection(sectionId) {
+            const items = [];
+            const rows = document.querySelectorAll(`#${sectionId} tbody tr`);
+            
+            rows.forEach(row => {
+                // Get proper item name with dropdown selection if applicable
+                let name = '';
+                const firstCell = row.querySelector('td:first-child');
+                const dropdown = firstCell.querySelector('select');
+                
+                if (dropdown) {
+                    // Check if this is the wood type selector
+                    if (dropdown.classList.contains('wood-type')) {
+                        name = dropdown.options[dropdown.selectedIndex].text;
+                    } else {
+                        name = dropdown.options[dropdown.selectedIndex].text;
+                    }
+                } else {
+                    name = firstCell.textContent.trim();
+                }
+                
+                const qty = parseFloat(row.querySelector('.qty').value) || 0;
+                let cost;
+                
+                // Check if this is a commission select or regular cost input
+                const costSelect = row.querySelector('.commission-select');
+                if (costSelect) {
+                    cost = parseFloat(costSelect.value) || 0;
+                } else {
+                    const costInput = row.querySelector('.cost');
+                    cost = parseFloat(costInput?.value) || 0;
+                }
+                
+                // Get item name from input if it exists
+                const nameInput = firstCell.querySelector('.item-name');
+                if (nameInput) {
+                    name = nameInput.value.trim() || 'Custom Item';
+                }
+                
+                // Only include items with both quantity and cost
+                if (qty > 0 && cost > 0) {
+                    const total = qty * cost;
+                    items.push({ name, qty, cost, total });
+                }
+            });
+            
+            return items;
+        }
+    </script>
+</body>
+</html>
