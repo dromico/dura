@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Test Contact Form - Durafloor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="feedback/feedback.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+    function validateForm() {
+        var antiSpam = document.getElementById('AntiSpam').value;
+        if (validate(antiSpam, 'ans')) {
+            document.form1.action = 'feedback/feedback.php';
+            return true;
+        }
+        return false;
+    }
+    </script>
+</head>
+<body style="padding: 20px; font-family: Arial, sans-serif;">
+    <h1>Contact Form Test</h1>
+    <p>This is a test page to verify the contact form functionality.</p>
+    
+    <form method="post" name="form1" class="feedbackform" enctype="multipart/form-data" action="" onsubmit="return validateForm()">
+        <input type="text" name="Company_name" placeholder="Company Name" />
+        <input type="text" name="User_name" required placeholder="Contact Person" />
+        <textarea name="Address" rows="3" placeholder="Address" ></textarea>
+        <input type="tel" name="Tel_no" required placeholder="Tel Number" />
+        <input type="tel" name="Fax_no" placeholder="Fax Number" />
+        <input type="email" name="User_email" autocomplete="off" required placeholder="Email" />
+        <textarea name="Enquiry" rows="3" id="Enquiry" placeholder="Enquiry" ></textarea>
+        <div id="captcha"><script src="feedback/captcha.js"></script></div>
+        <input type="text" id="AntiSpam" name="AntiSpam" required placeholder="What's written above?" />
+        <input type="submit" id="Submit" value="Submit" />
+    </form>
+    
+    <h2>Instructions:</h2>
+    <ol>
+        <li>Fill out all required fields (marked with red border when empty)</li>
+        <li>Enter a valid email address</li>
+        <li>Type the verification code shown in the box above</li>
+        <li>Click Submit</li>
+    </ol>
+    
+    <h2>What was fixed:</h2>
+    <ul>
+        <li>✅ Fixed deprecated PHP split() function</li>
+        <li>✅ Fixed undefined variable errors</li>
+        <li>✅ Improved form validation</li>
+        <li>✅ Added input sanitization</li>
+        <li>✅ Added basic spam protection</li>
+        <li>✅ Improved CSS styling</li>
+        <li>✅ Fixed captcha validation</li>
+        <li>✅ Added proper error handling</li>
+    </ul>
+</body>
+</html>

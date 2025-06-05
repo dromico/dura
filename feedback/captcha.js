@@ -10,14 +10,15 @@
 
 
 
-//Validate this shit when press submit button
-function validate(AntiSpam)
+//Validate captcha when submit button is pressed
+function validate(AntiSpam, ans)
 {
- if (AntiSpam==randomstring)
-  form1.action='feedback/feedback.php';
- else 
- {
-  alert('Enter Verify Code');
+ if (AntiSpam == randomstring) {
+  document.form1.action = 'feedback/feedback.php';
+  return true;
+ } else {
+  alert('Please enter the correct verification code');
+  return false;
  }
 }
 function load(url)
@@ -26,7 +27,7 @@ function load(url)
 }
 
 
-//Generate random background behind this fucking random number to confuse Fucking user
+//Generate random background behind the captcha
  var imgCount = 6;
         var dir = 'feedback/';
         var randomCount = Math.round(Math.random() * (imgCount - 1)) + 1;

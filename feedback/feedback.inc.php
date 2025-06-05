@@ -1,10 +1,16 @@
 <?php
+// Prevent direct access
+if (!isset($_POST) || empty($_POST)) {
+    header('Location: ../contact.html');
+    exit();
+}
+
 // email setting //
-  $mailto    = "jvsteps@gmail.com"; 
+  $mailto    = "jvsteps@gmail.com";
   $bccMail   = "feedback1@asiapacific.com.my";  // leave it blank as options //
   $from      = "Durafloor";  // Name of the company where this form is belongs.
   $subject   = "Durafloor have enquiry From %name%";
-  $referred  = 1;  // set 0 to turn off valid referred checking //
+  $referred  = 0;  // set 0 to turn off valid referred checking (disabled due to modern browser restrictions) //
   $skipEmpty = 1;  // hide all fields that have empty value //
   $emptyFld  = "";  // default value for empty fields //
   $FldLeng   = 1000;  // maximum string length for each fields //
@@ -20,6 +26,18 @@
   // allowed attachment file type //
   $path = "attach";
   $a_types = array("zip", "rar", "txt", "doc", "jpg", "jpeg", "png", "gif","docx","pdf");  // in lower case //
+
+  // Basic spam protection
+  function checkSpam($text) {
+      $spam_words = array('viagra', 'casino', 'lottery', 'winner', 'congratulations', 'million dollars');
+      $text_lower = strtolower($text);
+      foreach ($spam_words as $word) {
+          if (strpos($text_lower, $word) !== false) {
+              return true;
+          }
+      }
+      return false;
+  }
 
   // auto redirect script //
   $redirect = "<SCRIPT>setTimeout(\"document.location.href='%return%'\", 5000);</SCRIPT>";
@@ -61,6 +79,11 @@ $a_err[5] =
   function validReferred () {
           $valid_url = 'http://'.$_SERVER['HTTP_HOST'].'/';
           $valid_len = strlen($valid_url);
+
+          // Check if HTTP_REFERER is set
+          if (!isset($_SERVER['HTTP_REFERER']) || empty($_SERVER['HTTP_REFERER'])) {
+             return true; // Allow submission if referer is not set (common with modern browsers)
+          }
 
           if (substr($_SERVER['HTTP_REFERER'], 0, $valid_len) != $valid_url) {
              $mesg = "<b>You submitted this form from an invalid URL.</b><br />\r\n" .
@@ -117,7 +140,7 @@ $a_err[5] =
 
   function validEmail ($email, $checkDomain=0, $testConnection=0) {
           if (preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $email)) {
-             list($username,$domain) = split("@", $email); // gets domain name //
+             list($username,$domain) = explode("@", $email); // gets domain name //
 
              if (function_exists("checkdnsrr") && $checkDomain) {
                 if (!checkdnsrr($domain, "MX")) {
@@ -181,21 +204,31 @@ $a_err[5] =
      }
   }
   if ($valid) {
-     if ($_POST['User_Email']) {
+     // Initialize error variable
+     $error = FALSE;
+
+     if (isset($_POST['User_Email'])) {
         $email = $_POST['User_Email'];
-     } else if ($_POST['User_email']) {
+     } else if (isset($_POST['User_email'])) {
         $email = $_POST['User_email'];
-     } else if ($_POST['user_Email']) {
+     } else if (isset($_POST['user_Email'])) {
+        $email = $_POST['user_Email'];
+     } else if (isset($_POST['user_email'])) {
         $email = $_POST['user_email'];
      } else {
-        $email = $_POST['user_email'];
+        $email = '';
      }
 
-     $valid = validEmail($email, 1);
+     if (!empty($email)) {
+        $valid = validEmail($email, 1);
 
-     if (!$valid) {
+        if (!$valid) {
+           $error  = TRUE;
+           $t_mesg = str_replace("%return%", $returnF, nl2br($a_err[5]));
+        }
+     } else {
         $error  = TRUE;
-        $t_mesg = str_replace("%return%", $returnF, nl2br($a_err[5]));
+        $t_mesg = str_replace("%return%", $returnF, nl2br($a_err[0]));
      }
   }
 
@@ -212,8 +245,9 @@ $a_err[5] =
      $error    = FALSE;          // error occur while process of send email //
      $a_key    = array();        // variable store key fields //
      $a_val    = array();        // variable store value fields //
+     $content  = "";             // initialize content variable //
 
-     while (list($key, $val) = each($_POST)) {
+     foreach ($_POST as $key => $val) {
         if ($reqNoVal == TRUE) {
            break;
         }
@@ -255,11 +289,14 @@ $a_err[5] =
               $val = $emptyFld;  // put default value for empty fields //
            }
 
+           // Sanitize input to prevent XSS
+           $val = htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+
            $a_key[$i] = $sKey;
            $a_val[$i] = $val;
            $i++;
         }
-     } // END while loop for each $_POST variables
+     } // END foreach loop for each $_POST variables
 
 
      //
@@ -290,6 +327,13 @@ $a_err[5] =
            }
         } else {
            $content .= $a_key[$x]." : ".stripslashes($a_val[$x])."\n";
+
+           // Check for spam in text fields
+           if (checkSpam($a_val[$x])) {
+               $error = TRUE;
+               $t_mesg = "Your message appears to contain spam content. Please revise your message.";
+               break;
+           }
         }
      }
 

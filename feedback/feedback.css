@@ -13,9 +13,17 @@
 	width: 97%;
 	border: 1px solid #CCCCCC;
 	border-radius:5px;
-	padding: 5px;
+	padding: 8px;
 	display: block;
-	margin-bottom: 7px;
+	margin-bottom: 10px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+.feedbackform input:focus, .feedbackform textarea:focus {
+	border-color: #ae0c21;
+	outline: none;
+	box-shadow: 0 0 5px rgba(174, 12, 33, 0.3);
 }
 
 /****************************************************************/
@@ -48,18 +56,25 @@
 /****************************************************************/
 .feedbackform input[type=submit]{
 	width: auto;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	padding-top: 7px;
-	padding-right: 25px;
-	padding-bottom: 7px;
-	padding-left: 25px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+	padding: 12px 30px;
 	color: #FFF;
 	background-color: #ae0c21;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: bold;
+	transition: background-color 0.3s ease;
+}
+
+.feedbackform input[type=submit]:hover {
+	background-color: #8a0a1a;
 }
 /****************************************************************/
 #captcha{
-	background-image: url(feedback/captcha.gif);
+	background-image: url(captcha1.jpg);
 	background-size: cover;
 	/* disable select */
 	-webkit-touch-callout: none;
@@ -70,12 +85,14 @@
 	user-select: none;
 	font-size: 28px;
 	color: #000;
-	padding-top: 7px;
-	padding-right: 25px;
-	padding-bottom: 7px;
-	padding-left: 25px;
+	font-weight: bold;
+	text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+	padding: 10px 25px;
 	text-align: center;
-	margin-bottom: 3px;
+	margin-bottom: 10px;
 	display: inline-block;
-	margin-bottom: 7px;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+	min-width: 120px;
+	min-height: 40px;
 }
