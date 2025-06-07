@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Popup Toggle</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .current-state { background: #f8f9fa; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 D'Romico's Popup Toggle Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h2>Current State Analysis</h2>
+        <div id="current-state" class="current-state">Loading...</div>
+        <button onclick="refreshState()">Refresh State</button>
+    </div>
+
+    <div class="debug-section">
+        <h2>Toggle Operations</h2>
+        <button onclick="disablePopup()">Disable Popup</button>
+        <button onclick="enablePopup()">Enable Popup</button>
+        <button onclick="testToggleSequence()">Test Toggle Sequence</button>
+        <div id="toggle-results" class="status info">Ready for testing</div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Storage Management</h2>
+        <button onclick="clearStorage()">Clear All Storage</button>
+        <button onclick="resetToDefaults()">Reset to Defaults</button>
+        <button onclick="corruptStorage()">Simulate Corrupt Storage</button>
+        <div id="storage-results" class="status info">Storage operations ready</div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Live Testing</h2>
+        <button onclick="triggerPopup()">Force Show Popup</button>
+        <button onclick="checkPopupBehavior()">Check Popup Behavior</button>
+        <button onclick="enableDebugMode()">Enable Debug Mode</button>
+        <button onclick="testAdminToggle()">Test Admin Toggle</button>
+        <div id="behavior-results" class="status info">Behavior testing ready</div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Console Debug Commands</h2>
+        <p>Open browser console and try these commands:</p>
+        <code style="display: block; background: #f8f9fa; padding: 10px; margin: 5px 0;">
+            duratilePopupDebug.getStatus() // Get system status<br>
+            duratilePopupDebug.enable() // Enable popup<br>
+            duratilePopupDebug.disable() // Disable popup<br>
+            duratilePopupDebug.toggle() // Toggle state<br>
+            duratilePopupDebug.enableDebug() // Enable debug logging
+        </code>
+    </div>
+
+    <!-- Include the popup system -->
+    <script src="js/duratile-popup.js"></script>
+    
+    <script>
+        // Debug functions
+        function refreshState() {
+            try {
+                const priceData = duratilePopup.getPriceData();
+                const popupCount = duratilePopup.getPopupCount();
+                const isEnabled = duratilePopup.isPopupEnabled();
+                
+                const stateHTML = `
+                    <strong>localStorage Data:</strong><br>
+                    ${JSON.stringify(priceData, null, 2)}<br><br>
+                    <strong>Cookie Count:</strong> ${popupCount}<br>
+                    <strong>Is Enabled (computed):</strong> ${isEnabled}<br>
+                    <strong>Raw enabled value:</strong> ${priceData.enabled}<br>
+                    <strong>Enabled !== false:</strong> ${priceData.enabled !== false}
+                `;
+                
+                document.getElementById('current-state').innerHTML = stateHTML;
+            } catch (error) {
+                document.getElementById('current-state').innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+            }
+        }
+
+        function disablePopup() {
+            try {
+                // Use the new method-based approach
+                const result = duratilePopup.disablePopup();
+                const isEnabled = duratilePopup.isPopupEnabled();
+
+                document.getElementById('toggle-results').className = `status ${result && !isEnabled ? 'pass' : 'fail'}`;
+                document.getElementById('toggle-results').textContent = `Disable: ${result && !isEnabled ? 'SUCCESS' : 'FAILED'} - Method: ${result}, State: ${isEnabled}`;
+
+                // Check if any existing popup was closed
+                const hasPopup = !!document.getElementById('duratile-popup');
+                if (!hasPopup && !isEnabled) {
+                    document.getElementById('toggle-results').textContent += ' (Existing popup closed)';
+                }
+
+                refreshState();
+            } catch (error) {
+                document.getElementById('toggle-results').className = 'status fail';
+                document.getElementById('toggle-results').textContent = `Disable Error: ${error.message}`;
+            }
+        }
+
+        function enablePopup() {
+            try {
+                // Use the new method-based approach
+                const result = duratilePopup.enablePopup();
+                const isEnabled = duratilePopup.isPopupEnabled();
+
+                document.getElementById('toggle-results').className = `status ${result && isEnabled ? 'pass' : 'fail'}`;
+                document.getElementById('toggle-results').textContent = `Enable: ${result && isEnabled ? 'SUCCESS' : 'FAILED'} - Method: ${result}, State: ${isEnabled}`;
+                refreshState();
+            } catch (error) {
+                document.getElementById('toggle-results').className = 'status fail';
+                document.getElementById('toggle-results').textContent = `Enable Error: ${error.message}`;
+            }
+        }
+
+        function testToggleSequence() {
+            try {
+                // Enhanced test sequence with method-based toggling
+                const results = [];
+
+                // Step 1: Enable using method
+                const enableResult = duratilePopup.enablePopup();
+                results.push(`Enable Method: ${enableResult}`);
+                results.push(`Enable State: ${duratilePopup.isPopupEnabled()}`);
+
+                // Step 2: Disable using method
+                const disableResult = duratilePopup.disablePopup();
+                results.push(`Disable Method: ${disableResult}`);
+                results.push(`Disable State: ${duratilePopup.isPopupEnabled()}`);
+
+                // Step 3: Toggle back to enabled
+                const toggleResult = duratilePopup.togglePopup();
+                results.push(`Toggle Method: ${toggleResult}`);
+                results.push(`Final State: ${duratilePopup.isPopupEnabled()}`);
+
+                // Validate sequence
+                const methodsWorked = enableResult && disableResult && toggleResult;
+                const statesCorrect = results[1] === 'Enable State: true' &&
+                                    results[3] === 'Disable State: false' &&
+                                    results[5] === 'Final State: true';
+
+                const success = methodsWorked && statesCorrect;
+
+                document.getElementById('toggle-results').className = `status ${success ? 'pass' : 'fail'}`;
+                document.getElementById('toggle-results').textContent = `Enhanced Sequence: ${success ? 'PASS' : 'FAIL'} - ${results.join(', ')}`;
+
+                // Show system status
+                const status = duratilePopup.getSystemStatus();
+                console.log('System Status:', status);
+
+                refreshState();
+            } catch (error) {
+                document.getElementById('toggle-results').className = 'status fail';
+                document.getElementById('toggle-results').textContent = `Sequence Error: ${error.message}`;
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('duratile_price_data');
+            document.cookie = 'duratile_popup_count=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.getElementById('storage-results').className = 'status pass';
+            document.getElementById('storage-results').textContent = 'Storage cleared successfully';
+            refreshState();
+        }
+
+        function resetToDefaults() {
+            const defaultData = {
+                price: 25.00,
+                lastUpdated: new Date().toLocaleString(),
+                popupDisplayCount: 0,
+                enabled: true
+            };
+            localStorage.setItem('duratile_price_data', JSON.stringify(defaultData));
+            document.getElementById('storage-results').className = 'status pass';
+            document.getElementById('storage-results').textContent = 'Reset to defaults successfully';
+            refreshState();
+        }
+
+        function corruptStorage() {
+            localStorage.setItem('duratile_price_data', 'invalid json data');
+            document.getElementById('storage-results').className = 'status info';
+            document.getElementById('storage-results').textContent = 'Storage corrupted for testing';
+            refreshState();
+        }
+
+        function triggerPopup() {
+            // Remove existing popup first
+            const existingPopup = document.getElementById('duratile-popup');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+            
+            // Reset cookie count to allow popup
+            duratilePopup.setCookie('duratile_popup_count', '0', 30);
+            
+            // Force show popup
+            duratilePopup.showPopup();
+            
+            document.getElementById('behavior-results').className = 'status info';
+            document.getElementById('behavior-results').textContent = 'Popup triggered - check if it appears';
+        }
+
+        function checkPopupBehavior() {
+            try {
+                const status = duratilePopup.getSystemStatus();
+
+                let message = '';
+
+                if (!status.isEnabled) {
+                    message = `Popup disabled - should not show (enabled: ${status.isEnabled})`;
+                } else if (status.currentCount >= status.maxDisplays) {
+                    message = `Max displays reached (${status.currentCount}/${status.maxDisplays}) - should not show`;
+                } else {
+                    message = `Popup should show (enabled: ${status.isEnabled}, count: ${status.currentCount}/${status.maxDisplays})`;
+                }
+
+                message += ` | Active popup: ${status.hasActivePopup}`;
+
+                document.getElementById('behavior-results').className = 'status pass';
+                document.getElementById('behavior-results').textContent = message;
+
+                console.log('Full System Status:', status);
+            } catch (error) {
+                document.getElementById('behavior-results').className = 'status fail';
+                document.getElementById('behavior-results').textContent = `Behavior check error: ${error.message}`;
+            }
+        }
+
+        function enableDebugMode() {
+            duratilePopup.enableDebugMode();
+            document.getElementById('behavior-results').className = 'status info';
+            document.getElementById('behavior-results').textContent = 'Debug mode enabled - check console for detailed logs';
+        }
+
+        function testAdminToggle() {
+            try {
+                // Simulate admin toggle sequence
+                const originalState = duratilePopup.isPopupEnabled();
+
+                // Toggle off
+                duratilePopup.disablePopup();
+                const disabledState = duratilePopup.isPopupEnabled();
+
+                // Toggle on
+                duratilePopup.enablePopup();
+                const enabledState = duratilePopup.isPopupEnabled();
+
+                const success = !disabledState && enabledState;
+
+                document.getElementById('behavior-results').className = `status ${success ? 'pass' : 'fail'}`;
+                document.getElementById('behavior-results').textContent = `Admin Toggle Test: ${success ? 'PASS' : 'FAIL'} (Original: ${originalState}, Disabled: ${disabledState}, Enabled: ${enabledState})`;
+
+                refreshState();
+            } catch (error) {
+                document.getElementById('behavior-results').className = 'status fail';
+                document.getElementById('behavior-results').textContent = `Admin toggle test error: ${error.message}`;
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshState();
+
+            // Enable debug mode by default for testing
+            duratilePopup.enableDebugMode();
+            console.log('🔧 D\'Romico Debug Tool initialized - Debug mode enabled');
+        });
+    </script>
+</body>
+</html>

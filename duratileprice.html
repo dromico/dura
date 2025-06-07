@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Duratile Price Management - Admin</title>
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #b60000, #e11d1d);
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #b60000, #e11d1d);
+            color: white;
+            padding: 30px;
+            margin: -40px -40px 40px -40px;
+            border-radius: 16px 16px 0 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .admin-header h1,
+        .admin-header p {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-group input:focus {
+            border-color: #e11d1d;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(225, 29, 29, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #b60000, #e11d1d);
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(225, 29, 29, 0.3);
+        }
+        
+        .current-price {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 5px solid #e11d1d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #c3e6cb;
+            display: none;
+            box-shadow: 0 2px 10px rgba(21, 87, 36, 0.1);
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #ffeaa7;
+            box-shadow: 0 2px 10px rgba(133, 100, 4, 0.1);
+        }
+
+        .toggle-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: linear-gradient(to right, #28a745, #20c997);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .status-indicator {
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .status-enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .admin-header {
+                margin: -20px -20px 20px -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Duratile Price Management</h1>
+            <p>Update promotional popup pricing</p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            Price updated successfully!
+        </div>
+
+        <div class="toggle-section">
+            <h3>Popup Control</h3>
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="popupToggle" onchange="togglePopup()">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span>Enable Promotional Popup</span>
+                <span id="popupStatus" class="status-indicator status-enabled">ENABLED</span>
+            </div>
+            <small>Toggle this to enable or disable the promotional popup on the product page.</small>
+        </div>
+
+        <div class="current-price">
+            <h3>Current Price: RM<span id="currentPrice">0.00</span>/box</h3>
+            <small>Last updated: <span id="lastUpdated">Never</span></small>
+        </div>
+        
+        <div class="warning">
+            <strong>Note:</strong> This price will appear in the promotional popup on the Duratile XL Marbling Floor Tile page. Changes take effect immediately.
+        </div>
+        
+        <form id="priceForm">
+            <div class="form-group">
+                <label for="newPrice">New Price (RM per box):</label>
+                <input type="number" id="newPrice" name="newPrice" step="0.01" min="0" required placeholder="Enter price (e.g., 25.50)">
+            </div>
+            
+            <button type="submit" class="btn">Update Price</button>
+        </form>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h3>Popup Statistics</h3>
+            <p>Total popup displays today: <span id="popupStats">0</span></p>
+            <button type="button" class="btn" onclick="resetPopupStats()" style="background: #6c757d;">Reset Statistics</button>
+        </div>
+    </div>
+
+    <script>
+        // Price management system
+        class DuratilePriceManager {
+            constructor() {
+                this.storageKey = 'duratile_price_data';
+                this.init();
+            }
+            
+            init() {
+                this.loadCurrentPrice();
+                this.loadPopupStatus();
+                this.setupEventListeners();
+                this.loadPopupStats();
+            }
+            
+            loadCurrentPrice() {
+                const priceData = this.getPriceData();
+                document.getElementById('currentPrice').textContent = priceData.price.toFixed(2);
+                document.getElementById('lastUpdated').textContent = priceData.lastUpdated || 'Never';
+            }
+            
+            getPriceData() {
+                const defaultData = {
+                    price: 0.00,
+                    lastUpdated: null,
+                    popupDisplayCount: 0,
+                    enabled: true
+                };
+                
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    return stored ? { ...defaultData, ...JSON.parse(stored) } : defaultData;
+                } catch (e) {
+                    console.error('Error loading price data:', e);
+                    return defaultData;
+                }
+            }
+            
+            setPriceData(data) {
+                try {
+                    const currentData = this.getPriceData();
+                    const updatedData = { ...currentData, ...data };
+                    localStorage.setItem(this.storageKey, JSON.stringify(updatedData));
+                    return true;
+                } catch (e) {
+                    console.error('Error saving price data:', e);
+                    return false;
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('priceForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.updatePrice();
+                });
+            }
+            
+            updatePrice() {
+                const newPriceInput = document.getElementById('newPrice');
+                const newPrice = parseFloat(newPriceInput.value);
+                
+                if (isNaN(newPrice) || newPrice < 0) {
+                    alert('Please enter a valid price');
+                    return;
+                }
+                
+                const success = this.setPriceData({
+                    price: newPrice,
+                    lastUpdated: new Date().toLocaleString()
+                });
+                
+                if (success) {
+                    this.loadCurrentPrice();
+                    this.showSuccessMessage();
+                    newPriceInput.value = '';
+                } else {
+                    alert('Error updating price. Please try again.');
+                }
+            }
+            
+            showSuccessMessage() {
+                const message = document.getElementById('successMessage');
+                message.style.display = 'block';
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 3000);
+            }
+            
+            loadPopupStats() {
+                const priceData = this.getPriceData();
+                document.getElementById('popupStats').textContent = priceData.popupDisplayCount || 0;
+            }
+
+            loadPopupStatus() {
+                const priceData = this.getPriceData();
+                const isEnabled = priceData.enabled !== false;
+
+                document.getElementById('popupToggle').checked = isEnabled;
+                this.updateStatusIndicator(isEnabled);
+            }
+
+            updateStatusIndicator(isEnabled) {
+                const statusElement = document.getElementById('popupStatus');
+                if (isEnabled) {
+                    statusElement.textContent = 'ENABLED';
+                    statusElement.className = 'status-indicator status-enabled';
+                } else {
+                    statusElement.textContent = 'DISABLED';
+                    statusElement.className = 'status-indicator status-disabled';
+                }
+            }
+        }
+        
+        // Enhanced toggle popup enabled/disabled with better feedback
+        function togglePopup() {
+            const manager = new DuratilePriceManager();
+            const isEnabled = document.getElementById('popupToggle').checked;
+
+            try {
+                const success = manager.setPriceData({ enabled: isEnabled });
+
+                if (success) {
+                    manager.updateStatusIndicator(isEnabled);
+                    const statusText = isEnabled ? 'enabled' : 'disabled';
+
+                    // Show success message instead of alert
+                    showToggleMessage(`Popup ${statusText} successfully!`, 'success');
+
+                    // Log the change for debugging
+                    console.log(`[Admin] Popup ${statusText} at ${new Date().toLocaleTimeString()}`);
+
+                    // If we're on a page with the popup system, update it immediately
+                    if (window.duratilePopup) {
+                        if (isEnabled) {
+                            window.duratilePopup.enablePopup();
+                        } else {
+                            window.duratilePopup.disablePopup();
+                        }
+                    }
+
+                } else {
+                    throw new Error('Failed to save popup state');
+                }
+            } catch (error) {
+                console.error('Toggle popup error:', error);
+                showToggleMessage('Error updating popup status. Please try again.', 'error');
+
+                // Revert toggle state
+                document.getElementById('popupToggle').checked = !isEnabled;
+                manager.updateStatusIndicator(!isEnabled);
+            }
+        }
+
+        // Show toggle message with better UX
+        function showToggleMessage(message, type = 'info') {
+            // Remove existing message
+            const existingMessage = document.getElementById('toggleMessage');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // Create new message
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'toggleMessage';
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                ${type === 'success' ? 'background: #28a745;' : 'background: #dc3545;'}
+            `;
+            messageDiv.textContent = message;
+
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(messageDiv);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
+                    setTimeout(() => messageDiv.remove(), 300);
+                }
+            }, 3000);
+        }
+
+        // Reset popup statistics
+        function resetPopupStats() {
+            if (confirm('Are you sure you want to reset popup statistics?')) {
+                const manager = new DuratilePriceManager();
+                manager.setPriceData({ popupDisplayCount: 0 });
+                manager.loadPopupStats();
+                alert('Statistics reset successfully');
+            }
+        }
+        
+        // Initialize the price manager
+        document.addEventListener('DOMContentLoaded', () => {
+            new DuratilePriceManager();
+        });
+    </script>
+</body>
+</html>

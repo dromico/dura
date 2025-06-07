@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D'Romico's Comprehensive Popup Test</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section { 
+            padding: 20px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 10px; 
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        .test-section:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .status { 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            font-weight: 500;
+        }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warn { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        
+        button { 
+            padding: 12px 20px; 
+            margin: 8px 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .current-state { 
+            background: #ffffff; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .results-summary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .console-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .container { margin: 10px; padding: 15px; }
+            .test-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 D'Romico's Comprehensive Popup Test Suite</h1>
+            <p>Advanced diagnostics for the Duratile popup toggle functionality</p>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-section">
+                <h3>🔍 System Status</h3>
+                <div id="system-status" class="current-state">Loading system status...</div>
+                <button onclick="refreshSystemStatus()">Refresh Status</button>
+                <button onclick="enableDebugMode()">Enable Debug Mode</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🎛️ Toggle Controls</h3>
+                <button onclick="enablePopup()">Enable Popup</button>
+                <button onclick="disablePopup()">Disable Popup</button>
+                <button onclick="togglePopup()">Toggle State</button>
+                <div id="toggle-status" class="status info">Ready for toggle operations</div>
+            </div>
+
+            <div class="test-section">
+                <h3>🧪 Automated Tests</h3>
+                <button onclick="runQuickTest()">Quick Test</button>
+                <button onclick="runFullTestSuite()">Full Test Suite</button>
+                <button onclick="runStressTest()">Stress Test</button>
+                <div id="test-results" class="status info">Tests ready to run</div>
+            </div>
+
+            <div class="test-section">
+                <h3>🎯 Live Demo</h3>
+                <button onclick="forceShowPopup()">Force Show Popup</button>
+                <button onclick="resetPopupCount()">Reset Count</button>
+                <button onclick="simulatePageLoad()">Simulate Page Load</button>
+                <div id="demo-status" class="status info">Demo controls ready</div>
+            </div>
+
+            <div class="test-section">
+                <h3>💾 Storage Management</h3>
+                <button onclick="clearAllStorage()">Clear All Storage</button>
+                <button onclick="resetToDefaults()">Reset to Defaults</button>
+                <button onclick="exportState()">Export State</button>
+                <div id="storage-status" class="status info">Storage operations ready</div>
+            </div>
+
+            <div class="test-section">
+                <h3>🔧 Admin Simulation</h3>
+                <button onclick="simulateAdminToggle()">Simulate Admin Toggle</button>
+                <button onclick="testPriceUpdate()">Test Price Update</button>
+                <button onclick="validateIntegration()">Validate Integration</button>
+                <div id="admin-status" class="status info">Admin simulation ready</div>
+            </div>
+        </div>
+
+        <div class="results-summary" id="results-summary" style="display: none;">
+            <h3>📊 Test Results Summary</h3>
+            <div id="summary-content"></div>
+        </div>
+
+        <div class="console-output" id="console-output">
+            <div>Console Output (Real-time):</div>
+        </div>
+    </div>
+
+    <!-- Include the popup system and test script -->
+    <script src="js/duratile-popup.js"></script>
+    <script src="test-popup-toggle.js"></script>
+    
+    <script>
+        // Enhanced console capture for real-time display
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+
+        function captureConsole() {
+            const output = document.getElementById('console-output');
+            
+            ['log', 'error', 'warn'].forEach(method => {
+                console[method] = function(...args) {
+                    originalConsole[method].apply(console, args);
+                    
+                    const timestamp = new Date().toLocaleTimeString();
+                    const message = args.join(' ');
+                    const div = document.createElement('div');
+                    div.style.color = method === 'error' ? '#ff6b6b' : method === 'warn' ? '#feca57' : '#48cae4';
+                    div.textContent = `[${timestamp}] ${message}`;
+                    output.appendChild(div);
+                    output.scrollTop = output.scrollHeight;
+                };
+            });
+        }
+
+        // Test functions
+        function refreshSystemStatus() {
+            try {
+                const status = duratilePopup.getSystemStatus();
+                const statusHTML = `
+System Initialized: ${status.isInitialized}
+Popup Enabled: ${status.isEnabled}
+Current Count: ${status.currentCount}/${status.maxDisplays}
+Has Active Popup: ${status.hasActivePopup}
+
+Price Data:
+${JSON.stringify(status.priceData, null, 2)}
+                `;
+                document.getElementById('system-status').textContent = statusHTML;
+            } catch (error) {
+                document.getElementById('system-status').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function enablePopup() {
+            const result = duratilePopup.enablePopup();
+            updateToggleStatus(`Enable: ${result ? 'SUCCESS' : 'FAILED'}`, result ? 'pass' : 'fail');
+            refreshSystemStatus();
+        }
+
+        function disablePopup() {
+            const result = duratilePopup.disablePopup();
+            updateToggleStatus(`Disable: ${result ? 'SUCCESS' : 'FAILED'}`, result ? 'pass' : 'fail');
+            refreshSystemStatus();
+        }
+
+        function togglePopup() {
+            const result = duratilePopup.togglePopup();
+            const newState = duratilePopup.isPopupEnabled();
+            updateToggleStatus(`Toggle: ${result ? 'SUCCESS' : 'FAILED'} - Now ${newState ? 'ENABLED' : 'DISABLED'}`, result ? 'pass' : 'fail');
+            refreshSystemStatus();
+        }
+
+        function updateToggleStatus(message, type) {
+            const element = document.getElementById('toggle-status');
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function enableDebugMode() {
+            duratilePopup.enableDebugMode();
+            console.log('🔧 Debug mode enabled - detailed logging active');
+        }
+
+        function runQuickTest() {
+            console.log('🚀 Running quick test...');
+            // Simple enable/disable test
+            const originalState = duratilePopup.isPopupEnabled();
+            duratilePopup.disablePopup();
+            const disabled = !duratilePopup.isPopupEnabled();
+            duratilePopup.enablePopup();
+            const enabled = duratilePopup.isPopupEnabled();
+            
+            const success = disabled && enabled;
+            updateTestResults(`Quick Test: ${success ? 'PASS' : 'FAIL'}`, success ? 'pass' : 'fail');
+        }
+
+        function runFullTestSuite() {
+            console.log('🧪 Running full test suite...');
+            if (typeof window.testPopupToggle === 'function') {
+                const result = window.testPopupToggle();
+                updateTestResults(`Full Test Suite: ${result ? 'ALL PASSED' : 'SOME FAILED'}`, result ? 'pass' : 'fail');
+                showResultsSummary();
+            } else {
+                updateTestResults('Full Test Suite: Test script not loaded', 'fail');
+            }
+        }
+
+        function runStressTest() {
+            console.log('💪 Running stress test...');
+            let passCount = 0;
+            const iterations = 50;
+            
+            for (let i = 0; i < iterations; i++) {
+                try {
+                    duratilePopup.togglePopup();
+                    if (duratilePopup.isPopupEnabled() !== undefined) {
+                        passCount++;
+                    }
+                } catch (error) {
+                    console.error(`Stress test iteration ${i} failed:`, error);
+                }
+            }
+            
+            const success = passCount === iterations;
+            updateTestResults(`Stress Test: ${passCount}/${iterations} passed`, success ? 'pass' : 'warn');
+        }
+
+        function updateTestResults(message, type) {
+            const element = document.getElementById('test-results');
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function showResultsSummary() {
+            const summary = document.getElementById('results-summary');
+            const content = document.getElementById('summary-content');
+            
+            if (window.testResults) {
+                content.innerHTML = `
+                    <p><strong>Total Tests:</strong> ${window.testResults.passed + window.testResults.failed}</p>
+                    <p><strong>Passed:</strong> ${window.testResults.passed}</p>
+                    <p><strong>Failed:</strong> ${window.testResults.failed}</p>
+                    <p><strong>Success Rate:</strong> ${Math.round((window.testResults.passed / (window.testResults.passed + window.testResults.failed)) * 100)}%</p>
+                `;
+                summary.style.display = 'block';
+            }
+        }
+
+        // Additional demo functions
+        function forceShowPopup() {
+            duratilePopup.forceShowPopup();
+            document.getElementById('demo-status').className = 'status info';
+            document.getElementById('demo-status').textContent = 'Popup forced - check if it appears';
+        }
+
+        function resetPopupCount() {
+            duratilePopup.resetPopupCount();
+            document.getElementById('demo-status').className = 'status pass';
+            document.getElementById('demo-status').textContent = 'Popup count reset to 0';
+            refreshSystemStatus();
+        }
+
+        function simulatePageLoad() {
+            console.log('🔄 Simulating page load...');
+            duratilePopup.checkAndShowPopup();
+            document.getElementById('demo-status').className = 'status info';
+            document.getElementById('demo-status').textContent = 'Page load simulated - popup should appear if conditions are met';
+        }
+
+        function clearAllStorage() {
+            localStorage.removeItem('duratile_price_data');
+            document.cookie = 'duratile_popup_count=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.getElementById('storage-status').className = 'status pass';
+            document.getElementById('storage-status').textContent = 'All storage cleared';
+            refreshSystemStatus();
+        }
+
+        function resetToDefaults() {
+            const defaultData = {
+                price: 25.00,
+                lastUpdated: new Date().toLocaleString(),
+                popupDisplayCount: 0,
+                enabled: true
+            };
+            localStorage.setItem('duratile_price_data', JSON.stringify(defaultData));
+            document.getElementById('storage-status').className = 'status pass';
+            document.getElementById('storage-status').textContent = 'Reset to defaults completed';
+            refreshSystemStatus();
+        }
+
+        function exportState() {
+            const state = {
+                localStorage: localStorage.getItem('duratile_price_data'),
+                cookies: document.cookie,
+                systemStatus: duratilePopup.getSystemStatus()
+            };
+            console.log('📤 Exported State:', JSON.stringify(state, null, 2));
+            document.getElementById('storage-status').className = 'status info';
+            document.getElementById('storage-status').textContent = 'State exported to console';
+        }
+
+        function simulateAdminToggle() {
+            console.log('👨‍💼 Simulating admin toggle...');
+            // Simulate the admin page toggle functionality
+            const currentState = duratilePopup.isPopupEnabled();
+            const newState = !currentState;
+            
+            // Update localStorage like the admin page would
+            const currentData = duratilePopup.getPriceData();
+            localStorage.setItem('duratile_price_data', JSON.stringify({
+                ...currentData,
+                enabled: newState
+            }));
+            
+            const finalState = duratilePopup.isPopupEnabled();
+            const success = finalState === newState;
+            
+            document.getElementById('admin-status').className = `status ${success ? 'pass' : 'fail'}`;
+            document.getElementById('admin-status').textContent = `Admin toggle: ${success ? 'SUCCESS' : 'FAILED'} - ${currentState} → ${finalState}`;
+            refreshSystemStatus();
+        }
+
+        function testPriceUpdate() {
+            const newPrice = 29.99;
+            const currentData = duratilePopup.getPriceData();
+            localStorage.setItem('duratile_price_data', JSON.stringify({
+                ...currentData,
+                price: newPrice,
+                lastUpdated: new Date().toLocaleString()
+            }));
+            
+            const updatedData = duratilePopup.getPriceData();
+            const success = updatedData.price === newPrice;
+            
+            document.getElementById('admin-status').className = `status ${success ? 'pass' : 'fail'}`;
+            document.getElementById('admin-status').textContent = `Price update: ${success ? 'SUCCESS' : 'FAILED'} - RM${newPrice}`;
+            refreshSystemStatus();
+        }
+
+        function validateIntegration() {
+            const checks = [
+                typeof duratilePopup !== 'undefined',
+                typeof duratilePopup.isPopupEnabled === 'function',
+                typeof duratilePopupDebug !== 'undefined',
+                localStorage.getItem('duratile_price_data') !== null
+            ];
+            
+            const passed = checks.filter(Boolean).length;
+            const total = checks.length;
+            const success = passed === total;
+            
+            document.getElementById('admin-status').className = `status ${success ? 'pass' : 'warn'}`;
+            document.getElementById('admin-status').textContent = `Integration: ${passed}/${total} checks passed`;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            captureConsole();
+            
+            // Wait for popup system to initialize
+            setTimeout(() => {
+                refreshSystemStatus();
+                enableDebugMode();
+                console.log('🔧 D\'Romico\'s Comprehensive Test Suite initialized');
+                console.log('💡 Use the buttons above to test functionality or run: testPopupToggle() in console');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
