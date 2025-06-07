@@ -4,6 +4,7 @@
 @import url("section.css");
 @import url("footer.css");
 @import url("font.css");
+@import url("fab.css");
 body {
 	background-size: auto 100%;
 	margin: 0px;
