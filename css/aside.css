@@ -23,10 +23,18 @@ aside{
 
 
 
-@media only screen and (max-width: 900px) {	
+@media only screen and (max-width: 900px) {
 	aside{
-	width:auto;	
-	display: block;
-	clear: both;
-	padding-left:0vw;
+		width:auto;
+		display: block;
+		clear: both;
+		padding-left:0vw;
+		padding: 15px;
+		text-align: left;
+	}
+
+	aside img {
+		max-width: 200px;
+		height: auto;
+	}
 }
