@@ -292,7 +292,7 @@
         <form id="priceForm">
             <div class="form-group">
                 <label for="newPrice">New Price (RM per box):</label>
-                <input type="number" id="newPrice" name="newPrice" step="0.01" min="0" required placeholder="Enter price (e.g., 25.50)">
+                <input type="number" id="newPrice" name="newPrice" step="0.01" min="0" required placeholder="Enter price (e.g., 70.00)">
             </div>
             
             <button type="submit" class="btn">Update Price</button>
@@ -306,18 +306,47 @@
     </div>
 
     <script>
-        // Price management system
+        // Enhanced Global Price Management System
         class DuratilePriceManager {
             constructor() {
                 this.storageKey = 'duratile_price_data';
+                this.configUrl = 'duratile-config.json';
+                this.broadcastChannelName = 'duratile-popup-sync';
+                this.broadcastChannel = null;
                 this.init();
             }
-            
+
             init() {
+                this.initializeBroadcastChannel();
                 this.loadCurrentPrice();
                 this.loadPopupStatus();
                 this.setupEventListeners();
                 this.loadPopupStats();
+                this.setupGlobalSync();
+            }
+
+            // Initialize cross-tab communication
+            initializeBroadcastChannel() {
+                try {
+                    if ('BroadcastChannel' in window) {
+                        this.broadcastChannel = new BroadcastChannel(this.broadcastChannelName);
+                        console.log('📡 Admin BroadcastChannel initialized');
+                    }
+                } catch (error) {
+                    console.error('BroadcastChannel initialization error:', error);
+                }
+            }
+
+            // Setup global synchronization
+            setupGlobalSync() {
+                // Listen for storage changes from other tabs/windows
+                window.addEventListener('storage', (event) => {
+                    if (event.key === this.storageKey) {
+                        console.log('💾 Storage change detected, refreshing admin interface');
+                        this.loadCurrentPrice();
+                        this.loadPopupStatus();
+                    }
+                });
             }
             
             loadCurrentPrice() {
@@ -328,7 +357,7 @@
             
             getPriceData() {
                 const defaultData = {
-                    price: 0.00,
+                    price: 70.00,
                     lastUpdated: null,
                     popupDisplayCount: 0,
                     enabled: true
@@ -362,26 +391,113 @@
                 });
             }
             
-            updatePrice() {
+            async updatePrice() {
                 const newPriceInput = document.getElementById('newPrice');
                 const newPrice = parseFloat(newPriceInput.value);
-                
+
                 if (isNaN(newPrice) || newPrice < 0) {
-                    alert('Please enter a valid price');
+                    showToggleMessage('Please enter a valid price', 'error');
                     return;
                 }
-                
-                const success = this.setPriceData({
-                    price: newPrice,
-                    lastUpdated: new Date().toLocaleString()
-                });
-                
-                if (success) {
-                    this.loadCurrentPrice();
-                    this.showSuccessMessage();
-                    newPriceInput.value = '';
-                } else {
-                    alert('Error updating price. Please try again.');
+
+                try {
+                    // Update global configuration
+                    const success = await this.updateGlobalPrice(newPrice);
+
+                    if (success) {
+                        // Update local storage for backward compatibility
+                        this.setPriceData({
+                            price: newPrice,
+                            lastUpdated: new Date().toLocaleString()
+                        });
+
+                        // Broadcast to all tabs/windows
+                        this.broadcastGlobalUpdate({
+                            type: 'PRICE_UPDATE',
+                            price: newPrice,
+                            timestamp: Date.now()
+                        });
+
+                        this.loadCurrentPrice();
+                        this.showSuccessMessage();
+                        newPriceInput.value = '';
+
+                        showToggleMessage(`Price updated globally to RM${newPrice.toFixed(2)}!`, 'success');
+                        console.log(`💰 Global price update: RM${newPrice.toFixed(2)}`);
+
+                        // Update popup system if available
+                        if (window.duratilePopup) {
+                            await window.duratilePopup.updatePrice(newPrice);
+                        }
+
+                    } else {
+                        throw new Error('Failed to update global price');
+                    }
+                } catch (error) {
+                    console.error('Price update error:', error);
+                    showToggleMessage('Error updating price globally. Please try again.', 'error');
+                }
+            }
+
+            // Update global price configuration
+            async updateGlobalPrice(newPrice) {
+                try {
+                    // In a real implementation, this would POST to a server
+                    // For now, we'll update the cached configuration
+                    const cachedConfig = this.getCachedConfig();
+                    if (cachedConfig) {
+                        const updatedConfig = {
+                            ...cachedConfig,
+                            popup: {
+                                ...cachedConfig.popup,
+                                price: newPrice,
+                                lastUpdated: new Date().toISOString()
+                            },
+                            admin: {
+                                ...cachedConfig.admin,
+                                lastModifiedBy: 'admin',
+                                changeLog: [
+                                    ...(cachedConfig.admin?.changeLog || []),
+                                    {
+                                        timestamp: new Date().toISOString(),
+                                        action: 'price_update',
+                                        changes: { price: newPrice }
+                                    }
+                                ]
+                            }
+                        };
+
+                        localStorage.setItem('duratile_config_cache', JSON.stringify({
+                            config: updatedConfig,
+                            timestamp: Date.now()
+                        }));
+
+                        console.log('🌐 Global price configuration updated');
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error('Error updating global price:', error);
+                    return false;
+                }
+            }
+
+            // Get cached configuration
+            getCachedConfig() {
+                try {
+                    const cached = localStorage.getItem('duratile_config_cache');
+                    return cached ? JSON.parse(cached).config : null;
+                } catch (error) {
+                    console.error('Error reading cached config:', error);
+                    return null;
+                }
+            }
+
+            // Broadcast global updates to all tabs
+            broadcastGlobalUpdate(data) {
+                if (this.broadcastChannel) {
+                    this.broadcastChannel.postMessage(data);
+                    console.log('📡 Global update broadcasted:', data.type);
                 }
             }
             
@@ -418,45 +534,102 @@
             }
         }
         
-        // Enhanced toggle popup enabled/disabled with better feedback
-        function togglePopup() {
+        // Enhanced global toggle popup enabled/disabled
+        async function togglePopup() {
             const manager = new DuratilePriceManager();
             const isEnabled = document.getElementById('popupToggle').checked;
 
             try {
-                const success = manager.setPriceData({ enabled: isEnabled });
+                // Update global configuration first
+                const globalSuccess = await manager.updateGlobalToggle(isEnabled);
 
-                if (success) {
-                    manager.updateStatusIndicator(isEnabled);
-                    const statusText = isEnabled ? 'enabled' : 'disabled';
+                if (globalSuccess) {
+                    // Update local storage for backward compatibility
+                    const localSuccess = manager.setPriceData({ enabled: isEnabled });
 
-                    // Show success message instead of alert
-                    showToggleMessage(`Popup ${statusText} successfully!`, 'success');
+                    if (localSuccess) {
+                        manager.updateStatusIndicator(isEnabled);
+                        const statusText = isEnabled ? 'enabled' : 'disabled';
 
-                    // Log the change for debugging
-                    console.log(`[Admin] Popup ${statusText} at ${new Date().toLocaleTimeString()}`);
+                        // Broadcast to all tabs/windows
+                        manager.broadcastGlobalUpdate({
+                            type: 'TOGGLE_UPDATE',
+                            enabled: isEnabled,
+                            timestamp: Date.now()
+                        });
 
-                    // If we're on a page with the popup system, update it immediately
-                    if (window.duratilePopup) {
-                        if (isEnabled) {
-                            window.duratilePopup.enablePopup();
-                        } else {
-                            window.duratilePopup.disablePopup();
+                        // Show success message
+                        showToggleMessage(`Popup ${statusText} globally!`, 'success');
+
+                        // Log the change for debugging
+                        console.log(`🌐 [Global Admin] Popup ${statusText} at ${new Date().toLocaleTimeString()}`);
+
+                        // Update popup system if available on this page
+                        if (window.duratilePopup) {
+                            if (isEnabled) {
+                                await window.duratilePopup.enablePopup();
+                            } else {
+                                await window.duratilePopup.disablePopup();
+                            }
+                            console.log(`🔄 Local popup system updated: ${statusText}`);
                         }
-                    }
 
+                    } else {
+                        throw new Error('Failed to save local popup state');
+                    }
                 } else {
-                    throw new Error('Failed to save popup state');
+                    throw new Error('Failed to update global popup state');
                 }
             } catch (error) {
-                console.error('Toggle popup error:', error);
-                showToggleMessage('Error updating popup status. Please try again.', 'error');
+                console.error('❌ Toggle popup error:', error);
+                showToggleMessage('Error updating popup status globally. Please try again.', 'error');
 
                 // Revert toggle state
                 document.getElementById('popupToggle').checked = !isEnabled;
                 manager.updateStatusIndicator(!isEnabled);
             }
         }
+
+        // Add method to DuratilePriceManager for global toggle updates
+        DuratilePriceManager.prototype.updateGlobalToggle = async function(isEnabled) {
+            try {
+                const cachedConfig = this.getCachedConfig();
+                if (cachedConfig) {
+                    const updatedConfig = {
+                        ...cachedConfig,
+                        popup: {
+                            ...cachedConfig.popup,
+                            enabled: isEnabled,
+                            lastUpdated: new Date().toISOString()
+                        },
+                        admin: {
+                            ...cachedConfig.admin,
+                            lastModifiedBy: 'admin',
+                            changeLog: [
+                                ...(cachedConfig.admin?.changeLog || []),
+                                {
+                                    timestamp: new Date().toISOString(),
+                                    action: 'toggle_update',
+                                    changes: { enabled: isEnabled }
+                                }
+                            ]
+                        }
+                    };
+
+                    localStorage.setItem('duratile_config_cache', JSON.stringify({
+                        config: updatedConfig,
+                        timestamp: Date.now()
+                    }));
+
+                    console.log('🌐 Global toggle configuration updated');
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error updating global toggle:', error);
+                return false;
+            }
+        };
 
         // Show toggle message with better UX
         function showToggleMessage(message, type = 'info') {

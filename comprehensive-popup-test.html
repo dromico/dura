@@ -170,6 +170,14 @@
                 <button onclick="validateIntegration()">Validate Integration</button>
                 <div id="admin-status" class="status info">Admin simulation ready</div>
             </div>
+
+            <div class="test-section">
+                <h3>🌐 Global Configuration</h3>
+                <button onclick="testGlobalConfig()">Test Global Config</button>
+                <button onclick="testCrossTabSync()">Test Cross-Tab Sync</button>
+                <button onclick="simulateGlobalPriceUpdate()">Global Price Update</button>
+                <div id="global-status" class="status info">Global testing ready</div>
+            </div>
         </div>
 
         <div class="results-summary" id="results-summary" style="display: none;">
@@ -357,7 +365,7 @@ ${JSON.stringify(status.priceData, null, 2)}
 
         function resetToDefaults() {
             const defaultData = {
-                price: 25.00,
+                price: 70.00,
                 lastUpdated: new Date().toLocaleString(),
                 popupDisplayCount: 0,
                 enabled: true
@@ -401,7 +409,7 @@ ${JSON.stringify(status.priceData, null, 2)}
         }
 
         function testPriceUpdate() {
-            const newPrice = 29.99;
+            const newPrice = 75.99;
             const currentData = duratilePopup.getPriceData();
             localStorage.setItem('duratile_price_data', JSON.stringify({
                 ...currentData,
@@ -422,15 +430,99 @@ ${JSON.stringify(status.priceData, null, 2)}
                 typeof duratilePopup !== 'undefined',
                 typeof duratilePopup.isPopupEnabled === 'function',
                 typeof duratilePopupDebug !== 'undefined',
-                localStorage.getItem('duratile_price_data') !== null
+                localStorage.getItem('duratile_price_data') !== null,
+                typeof duratilePopup.loadGlobalConfiguration === 'function',
+                typeof duratilePopup.updatePrice === 'function'
             ];
-            
+
             const passed = checks.filter(Boolean).length;
             const total = checks.length;
             const success = passed === total;
-            
+
             document.getElementById('admin-status').className = `status ${success ? 'pass' : 'warn'}`;
-            document.getElementById('admin-status').textContent = `Integration: ${passed}/${total} checks passed`;
+            document.getElementById('admin-status').textContent = `Integration: ${passed}/${total} checks passed (Global features included)`;
+        }
+
+        // Global configuration tests
+        async function testGlobalConfig() {
+            try {
+                console.log('🌐 Testing global configuration...');
+
+                // Test loading global config
+                await duratilePopup.loadGlobalConfiguration();
+                const config = duratilePopup.config;
+
+                const checks = [
+                    typeof config === 'object',
+                    typeof config.enabled === 'boolean',
+                    typeof config.price === 'number',
+                    config.price >= 0
+                ];
+
+                const success = checks.every(Boolean);
+
+                document.getElementById('global-status').className = `status ${success ? 'pass' : 'fail'}`;
+                document.getElementById('global-status').textContent = `Global Config: ${success ? 'LOADED' : 'FAILED'} - Price: RM${config.price}, Enabled: ${config.enabled}`;
+
+                console.log('Global config test result:', { success, config });
+            } catch (error) {
+                document.getElementById('global-status').className = 'status fail';
+                document.getElementById('global-status').textContent = `Global Config Error: ${error.message}`;
+            }
+        }
+
+        async function testCrossTabSync() {
+            try {
+                console.log('📡 Testing cross-tab synchronization...');
+
+                // Simulate a configuration change
+                const originalPrice = duratilePopup.config.price;
+                const testPrice = originalPrice + 10;
+
+                // Update price and check if it propagates
+                const result = await duratilePopup.updatePrice(testPrice);
+
+                // Wait a moment for sync
+                setTimeout(() => {
+                    const newPrice = duratilePopup.config.price;
+                    const success = result && newPrice === testPrice;
+
+                    document.getElementById('global-status').className = `status ${success ? 'pass' : 'fail'}`;
+                    document.getElementById('global-status').textContent = `Cross-Tab Sync: ${success ? 'SUCCESS' : 'FAILED'} - ${originalPrice} → ${newPrice}`;
+
+                    // Restore original price
+                    duratilePopup.updatePrice(originalPrice);
+                }, 500);
+
+            } catch (error) {
+                document.getElementById('global-status').className = 'status fail';
+                document.getElementById('global-status').textContent = `Cross-Tab Sync Error: ${error.message}`;
+            }
+        }
+
+        async function simulateGlobalPriceUpdate() {
+            try {
+                console.log('💰 Simulating global price update...');
+
+                const newPrice = Math.round((Math.random() * 50 + 50) * 100) / 100; // Random price between 50-100
+                const result = await duratilePopup.updatePrice(newPrice);
+
+                if (result) {
+                    document.getElementById('global-status').className = 'status pass';
+                    document.getElementById('global-status').textContent = `Global Price Update: SUCCESS - New price: RM${newPrice.toFixed(2)}`;
+
+                    // Update system status display
+                    refreshSystemStatus();
+
+                    console.log(`💰 Global price updated to RM${newPrice.toFixed(2)}`);
+                } else {
+                    throw new Error('Price update failed');
+                }
+
+            } catch (error) {
+                document.getElementById('global-status').className = 'status fail';
+                document.getElementById('global-status').textContent = `Global Price Update Error: ${error.message}`;
+            }
         }
 
         // Initialize on load

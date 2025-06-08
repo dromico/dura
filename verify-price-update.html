@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Update Verification - RM70.00 Default</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .verification-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 6px; 
+            font-weight: 500;
+        }
+        .pass { background: rgba(40, 167, 69, 0.8); color: white; }
+        .fail { background: rgba(220, 53, 69, 0.8); color: white; }
+        .info { background: rgba(23, 162, 184, 0.8); color: white; }
+        
+        button { 
+            padding: 12px 20px; 
+            margin: 8px 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .config-display { 
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin: 10px 0;
+        }
+        
+        .summary {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Price Update Verification</h1>
+            <p>Confirming RM70.00 as the new default promotional price</p>
+        </div>
+        
+        <div class="verification-item">
+            <h3>🔍 Configuration File Check</h3>
+            <p>Verifying duratile-config.json has RM70.00 as default price</p>
+            <div id="config-check" class="status info">Checking configuration...</div>
+            <button onclick="checkConfigFile()">Check Config File</button>
+        </div>
+
+        <div class="verification-item">
+            <h3>🎛️ Popup System Check</h3>
+            <p>Verifying popup system default configuration</p>
+            <div id="popup-check" class="status info">Checking popup system...</div>
+            <button onclick="checkPopupSystem()">Check Popup System</button>
+        </div>
+
+        <div class="verification-item">
+            <h3>💾 Storage Check</h3>
+            <p>Verifying localStorage and cached configuration</p>
+            <div id="storage-check" class="status info">Checking storage...</div>
+            <button onclick="checkStorage()">Check Storage</button>
+        </div>
+
+        <div class="verification-item">
+            <h3>🎯 Live Popup Test</h3>
+            <p>Testing actual popup display with RM70.00 price</p>
+            <div id="popup-test" class="status info">Ready to test popup...</div>
+            <button onclick="testPopupDisplay()">Test Popup Display</button>
+            <button onclick="resetAndTest()">Reset & Test Fresh</button>
+        </div>
+
+        <div class="verification-item">
+            <h3>📊 Verification Results</h3>
+            <div id="results-display" class="config-display">Click "Run Full Verification" to see results...</div>
+            <button onclick="runFullVerification()">Run Full Verification</button>
+        </div>
+
+        <div class="summary" id="summary" style="display: none;">
+            <h3>🎉 Verification Summary</h3>
+            <div id="summary-content"></div>
+        </div>
+    </div>
+
+    <!-- Include the popup system -->
+    <script src="js/duratile-popup.js"></script>
+    
+    <script>
+        let verificationResults = {
+            configFile: false,
+            popupSystem: false,
+            storage: false,
+            popupDisplay: false
+        };
+
+        async function checkConfigFile() {
+            try {
+                const response = await fetch('duratile-config.json?t=' + Date.now());
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const config = await response.json();
+                const price = config.popup.price;
+                
+                if (price === 70.00) {
+                    document.getElementById('config-check').className = 'status pass';
+                    document.getElementById('config-check').textContent = `✅ Config file verified: RM${price.toFixed(2)} (CORRECT)`;
+                    verificationResults.configFile = true;
+                } else {
+                    document.getElementById('config-check').className = 'status fail';
+                    document.getElementById('config-check').textContent = `❌ Config file error: RM${price.toFixed(2)} (Expected RM70.00)`;
+                    verificationResults.configFile = false;
+                }
+                
+                console.log('Config file check:', config);
+            } catch (error) {
+                document.getElementById('config-check').className = 'status fail';
+                document.getElementById('config-check').textContent = `❌ Config file error: ${error.message}`;
+                verificationResults.configFile = false;
+            }
+        }
+
+        function checkPopupSystem() {
+            try {
+                if (typeof duratilePopup === 'undefined') {
+                    throw new Error('Popup system not loaded');
+                }
+                
+                const config = duratilePopup.config;
+                const defaultPrice = config.price;
+                
+                if (defaultPrice === 70.00) {
+                    document.getElementById('popup-check').className = 'status pass';
+                    document.getElementById('popup-check').textContent = `✅ Popup system verified: RM${defaultPrice.toFixed(2)} (CORRECT)`;
+                    verificationResults.popupSystem = true;
+                } else {
+                    document.getElementById('popup-check').className = 'status fail';
+                    document.getElementById('popup-check').textContent = `❌ Popup system error: RM${defaultPrice.toFixed(2)} (Expected RM70.00)`;
+                    verificationResults.popupSystem = false;
+                }
+                
+                console.log('Popup system check:', config);
+            } catch (error) {
+                document.getElementById('popup-check').className = 'status fail';
+                document.getElementById('popup-check').textContent = `❌ Popup system error: ${error.message}`;
+                verificationResults.popupSystem = false;
+            }
+        }
+
+        function checkStorage() {
+            try {
+                // Clear any existing data to test defaults
+                localStorage.removeItem('duratile_price_data');
+                localStorage.removeItem('duratile_config_cache');
+                
+                // Get fresh price data (should use defaults)
+                const priceData = duratilePopup.getPriceData();
+                const price = priceData.price;
+                
+                if (price === 70.00) {
+                    document.getElementById('storage-check').className = 'status pass';
+                    document.getElementById('storage-check').textContent = `✅ Storage defaults verified: RM${price.toFixed(2)} (CORRECT)`;
+                    verificationResults.storage = true;
+                } else {
+                    document.getElementById('storage-check').className = 'status fail';
+                    document.getElementById('storage-check').textContent = `❌ Storage defaults error: RM${price.toFixed(2)} (Expected RM70.00)`;
+                    verificationResults.storage = false;
+                }
+                
+                console.log('Storage check:', priceData);
+            } catch (error) {
+                document.getElementById('storage-check').className = 'status fail';
+                document.getElementById('storage-check').textContent = `❌ Storage error: ${error.message}`;
+                verificationResults.storage = false;
+            }
+        }
+
+        function testPopupDisplay() {
+            try {
+                // Remove any existing popup
+                const existingPopup = document.getElementById('duratile-popup');
+                if (existingPopup) {
+                    existingPopup.remove();
+                }
+                
+                // Reset popup count to allow display
+                duratilePopup.resetPopupCount();
+                
+                // Force show popup
+                duratilePopup.forceShowPopup();
+                
+                // Check if popup was created and contains correct price
+                setTimeout(() => {
+                    const popup = document.getElementById('duratile-popup');
+                    if (popup) {
+                        const priceElement = popup.querySelector('.duratile-popup-price');
+                        if (priceElement) {
+                            const priceText = priceElement.textContent;
+                            const priceMatch = priceText.match(/RM(\d+\.?\d*)/);
+                            
+                            if (priceMatch && parseFloat(priceMatch[1]) === 70.00) {
+                                document.getElementById('popup-test').className = 'status pass';
+                                document.getElementById('popup-test').textContent = `✅ Popup display verified: ${priceText} (CORRECT)`;
+                                verificationResults.popupDisplay = true;
+                            } else {
+                                document.getElementById('popup-test').className = 'status fail';
+                                document.getElementById('popup-test').textContent = `❌ Popup price error: ${priceText} (Expected RM70.00)`;
+                                verificationResults.popupDisplay = false;
+                            }
+                        } else {
+                            throw new Error('Price element not found in popup');
+                        }
+                    } else {
+                        throw new Error('Popup was not created');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                document.getElementById('popup-test').className = 'status fail';
+                document.getElementById('popup-test').textContent = `❌ Popup test error: ${error.message}`;
+                verificationResults.popupDisplay = false;
+            }
+        }
+
+        function resetAndTest() {
+            // Clear all storage and cookies
+            localStorage.clear();
+            document.cookie = 'duratile_popup_count=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            
+            // Reload the page to test fresh defaults
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
+
+        async function runFullVerification() {
+            document.getElementById('results-display').textContent = 'Running full verification...\n';
+            
+            // Run all checks
+            await checkConfigFile();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            checkPopupSystem();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            checkStorage();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            testPopupDisplay();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Display results
+            const results = Object.values(verificationResults);
+            const passed = results.filter(Boolean).length;
+            const total = results.length;
+            
+            const resultsText = `
+VERIFICATION RESULTS:
+=====================
+
+✅ Configuration File: ${verificationResults.configFile ? 'PASS' : 'FAIL'}
+✅ Popup System: ${verificationResults.popupSystem ? 'PASS' : 'FAIL'}  
+✅ Storage Defaults: ${verificationResults.storage ? 'PASS' : 'FAIL'}
+✅ Popup Display: ${verificationResults.popupDisplay ? 'PASS' : 'FAIL'}
+
+SUMMARY: ${passed}/${total} checks passed
+STATUS: ${passed === total ? '🎉 ALL VERIFIED' : '⚠️ ISSUES FOUND'}
+
+Default price successfully updated to RM70.00: ${passed === total ? 'YES' : 'NO'}
+            `;
+            
+            document.getElementById('results-display').textContent = resultsText;
+            
+            // Show summary
+            const summary = document.getElementById('summary');
+            const summaryContent = document.getElementById('summary-content');
+            
+            if (passed === total) {
+                summaryContent.innerHTML = `
+                    <h4 style="color: #28a745;">✅ VERIFICATION SUCCESSFUL</h4>
+                    <p>All systems confirmed: Default promotional price is now <strong>RM70.00</strong></p>
+                    <p>The global popup system is ready for production use.</p>
+                `;
+                summary.style.background = 'rgba(40, 167, 69, 0.2)';
+            } else {
+                summaryContent.innerHTML = `
+                    <h4 style="color: #dc3545;">⚠️ VERIFICATION ISSUES</h4>
+                    <p>Some checks failed. Please review the results above.</p>
+                    <p>Expected: All systems should show RM70.00 as default price.</p>
+                `;
+                summary.style.background = 'rgba(220, 53, 69, 0.2)';
+            }
+            
+            summary.style.display = 'block';
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for popup system to initialize
+            setTimeout(() => {
+                console.log('🔍 Price Update Verification Tool initialized');
+                console.log('💡 Click "Run Full Verification" to confirm RM70.00 default price');
+                
+                // Auto-run verification after a moment
+                setTimeout(runFullVerification, 2000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

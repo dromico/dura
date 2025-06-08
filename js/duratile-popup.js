@@ -1,35 +1,52 @@
 /**
  * Duratile Promotional Popup System
+ * Enhanced with global configuration management and cross-browser synchronization
  * Manages promotional popups with frequency control and price management
- * Enhanced with robust toggle functionality and real-time state management
+ * D'Romico's Master Architecture - Global State Management Solution
  */
 
 class DuratilePopupSystem {
     constructor() {
-        this.cookieName = 'duratile_popup_count';
-        this.cookieExpireDays = 30;
-        this.maxDisplays = 3;
+        // Configuration sources (priority order)
+        this.configUrl = 'duratile-config.json';
         this.storageKey = 'duratile_price_data';
-        this.popupDelay = 2000; // 2 seconds delay after page load
+        this.configCacheKey = 'duratile_config_cache';
+        this.broadcastChannelName = 'duratile-popup-sync';
+
+        // Default configuration (fallback)
+        this.defaultConfig = {
+            cookieName: 'duratile_popup_count',
+            cookieExpireDays: 30,
+            maxDisplays: 3,
+            popupDelay: 2000,
+            enabled: true,
+            price: 70.00
+        };
+
+        // Runtime state
+        this.config = { ...this.defaultConfig };
         this.isInitialized = false;
-        this.debugMode = false; // Set to true for debugging
+        this.debugMode = false;
+        this.broadcastChannel = null;
+        this.configLastFetched = 0;
+        this.configCacheTTL = 300000; // 5 minutes
 
         this.init();
     }
 
-    init() {
+    async init() {
         // Wait for DOM to be ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.safeInitialize());
         } else {
-            this.safeInitialize();
+            await this.safeInitialize();
         }
     }
 
-    // Enhanced initialization with better error handling and state validation
-    safeInitialize() {
+    // Enhanced initialization with global configuration loading
+    async safeInitialize() {
         try {
-            this.log('Initializing Duratile Popup System...');
+            this.log('🚀 Initializing D\'Romico\'s Global Popup System...');
 
             // Validate storage accessibility
             if (!this.validateStorageAccess()) {
@@ -37,18 +54,182 @@ class DuratilePopupSystem {
                 return;
             }
 
+            // Initialize cross-tab communication
+            this.initializeBroadcastChannel();
+
+            // Load global configuration
+            await this.loadGlobalConfiguration();
+
             // Initialize default data if needed
             this.initializeDefaultData();
+
+            // Setup storage event listeners for cross-browser sync
+            this.setupStorageEventListeners();
 
             // Check and show popup with enhanced validation
             this.checkAndShowPopup();
 
             this.isInitialized = true;
-            this.log('Popup system initialized successfully');
+            this.log('✅ Global popup system initialized successfully');
 
         } catch (error) {
-            this.log(`Initialization error: ${error.message}`, 'error');
+            this.log(`❌ Initialization error: ${error.message}`, 'error');
+            // Fallback to local configuration
+            this.initializeDefaultData();
+            this.checkAndShowPopup();
         }
+    }
+
+    // Initialize BroadcastChannel for cross-tab communication
+    initializeBroadcastChannel() {
+        try {
+            if ('BroadcastChannel' in window) {
+                this.broadcastChannel = new BroadcastChannel(this.broadcastChannelName);
+                this.broadcastChannel.addEventListener('message', (event) => {
+                    this.handleBroadcastMessage(event.data);
+                });
+                this.log('📡 BroadcastChannel initialized for cross-tab sync');
+            } else {
+                this.log('⚠️ BroadcastChannel not supported, using storage events only');
+            }
+        } catch (error) {
+            this.log(`BroadcastChannel initialization error: ${error.message}`, 'warn');
+        }
+    }
+
+    // Load global configuration from external JSON
+    async loadGlobalConfiguration() {
+        try {
+            // Check cache first
+            const cachedConfig = this.getCachedConfig();
+            if (cachedConfig && this.isCacheValid()) {
+                this.config = { ...this.defaultConfig, ...cachedConfig };
+                this.log('📋 Using cached global configuration');
+                return;
+            }
+
+            this.log('🌐 Fetching global configuration...');
+            const response = await fetch(this.configUrl + '?t=' + Date.now());
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const globalConfig = await response.json();
+
+            // Validate and merge configuration
+            if (this.validateGlobalConfig(globalConfig)) {
+                this.config = this.mergeConfigurations(globalConfig);
+                this.cacheConfig(globalConfig);
+                this.configLastFetched = Date.now();
+                this.log('✅ Global configuration loaded successfully');
+
+                // Broadcast configuration update to other tabs
+                this.broadcastConfigUpdate(globalConfig);
+            } else {
+                throw new Error('Invalid global configuration format');
+            }
+
+        } catch (error) {
+            this.log(`⚠️ Failed to load global config: ${error.message}`, 'warn');
+            this.log('📋 Falling back to local configuration');
+
+            // Try to load from localStorage as fallback
+            const localData = this.getPriceData();
+            this.config = { ...this.defaultConfig, ...localData };
+        }
+    }
+
+    // Configuration management methods
+    getCachedConfig() {
+        try {
+            const cached = localStorage.getItem(this.configCacheKey);
+            return cached ? JSON.parse(cached) : null;
+        } catch (error) {
+            this.log(`Error reading cached config: ${error.message}`, 'warn');
+            return null;
+        }
+    }
+
+    isCacheValid() {
+        return (Date.now() - this.configLastFetched) < this.configCacheTTL;
+    }
+
+    cacheConfig(config) {
+        try {
+            const cacheData = {
+                config: config,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(this.configCacheKey, JSON.stringify(cacheData));
+        } catch (error) {
+            this.log(`Error caching config: ${error.message}`, 'warn');
+        }
+    }
+
+    validateGlobalConfig(config) {
+        return config &&
+               config.popup &&
+               typeof config.popup.enabled === 'boolean' &&
+               typeof config.popup.price === 'number' &&
+               config.popup.price >= 0;
+    }
+
+    mergeConfigurations(globalConfig) {
+        return {
+            ...this.defaultConfig,
+            enabled: globalConfig.popup.enabled,
+            price: globalConfig.popup.price,
+            maxDisplays: globalConfig.popup.maxDisplays || this.defaultConfig.maxDisplays,
+            cookieExpireDays: globalConfig.popup.cookieExpireDays || this.defaultConfig.cookieExpireDays,
+            popupDelay: globalConfig.popup.popupDelay || this.defaultConfig.popupDelay,
+            cookieName: globalConfig.popup.cookieName || this.defaultConfig.cookieName
+        };
+    }
+
+    // Cross-tab communication
+    broadcastConfigUpdate(config) {
+        if (this.broadcastChannel) {
+            this.broadcastChannel.postMessage({
+                type: 'CONFIG_UPDATE',
+                config: config,
+                timestamp: Date.now()
+            });
+            this.log('📡 Configuration update broadcasted to other tabs');
+        }
+    }
+
+    handleBroadcastMessage(data) {
+        try {
+            if (data.type === 'CONFIG_UPDATE') {
+                this.log('📡 Received configuration update from another tab');
+                const globalConfig = data.config;
+                if (this.validateGlobalConfig(globalConfig)) {
+                    this.config = this.mergeConfigurations(globalConfig);
+                    this.cacheConfig(globalConfig);
+
+                    // Update local storage for backward compatibility
+                    this.updateLocalStorage();
+
+                    // Close existing popup if disabled
+                    if (!this.config.enabled) {
+                        this.closePopup();
+                    }
+                }
+            }
+        } catch (error) {
+            this.log(`Error handling broadcast message: ${error.message}`, 'error');
+        }
+    }
+
+    // Setup storage event listeners for cross-browser synchronization
+    setupStorageEventListeners() {
+        window.addEventListener('storage', (event) => {
+            if (event.key === this.storageKey || event.key === this.configCacheKey) {
+                this.log('💾 Storage change detected, updating configuration');
+                this.loadGlobalConfiguration();
+            }
+        });
     }
 
     // Validate that localStorage is accessible
@@ -69,8 +250,24 @@ class DuratilePopupSystem {
         const currentData = this.getPriceData();
         if (!currentData.hasOwnProperty('enabled')) {
             this.log('Initializing default enabled state');
-            const updatedData = { ...currentData, enabled: true };
+            const updatedData = { ...currentData, enabled: this.config.enabled, price: this.config.price };
             localStorage.setItem(this.storageKey, JSON.stringify(updatedData));
+        }
+    }
+
+    // Update localStorage with current configuration
+    updateLocalStorage() {
+        try {
+            const currentData = this.getPriceData();
+            const updatedData = {
+                ...currentData,
+                enabled: this.config.enabled,
+                price: this.config.price,
+                lastUpdated: new Date().toLocaleString()
+            };
+            localStorage.setItem(this.storageKey, JSON.stringify(updatedData));
+        } catch (error) {
+            this.log(`Error updating localStorage: ${error.message}`, 'error');
         }
     }
 
@@ -113,19 +310,19 @@ class DuratilePopupSystem {
     
     // Get current popup display count
     getPopupCount() {
-        const count = this.getCookie(this.cookieName);
+        const count = this.getCookie(this.config.cookieName);
         return count ? parseInt(count) : 0;
     }
-    
+
     // Increment popup display count
     incrementPopupCount() {
         const currentCount = this.getPopupCount();
         const newCount = currentCount + 1;
-        this.setCookie(this.cookieName, newCount, this.cookieExpireDays);
-        
+        this.setCookie(this.config.cookieName, newCount, this.config.cookieExpireDays);
+
         // Update localStorage statistics
         this.updatePopupStats();
-        
+
         return newCount;
     }
     
@@ -140,106 +337,174 @@ class DuratilePopupSystem {
         }
     }
     
-    // Get price data from localStorage
+    // Get price data from localStorage (with global config integration)
     getPriceData() {
         const defaultData = {
-            price: 25.00, // Default price
+            price: this.config.price,
             lastUpdated: null,
             popupDisplayCount: 0,
-            enabled: true // Default to enabled
+            enabled: this.config.enabled
         };
-        
+
         try {
             const stored = localStorage.getItem(this.storageKey);
-            return stored ? { ...defaultData, ...JSON.parse(stored) } : defaultData;
+            const localData = stored ? JSON.parse(stored) : {};
+
+            // Merge with global configuration (global config takes precedence)
+            return {
+                ...defaultData,
+                ...localData,
+                enabled: this.config.enabled, // Always use global config for enabled state
+                price: this.config.price      // Always use global config for price
+            };
         } catch (e) {
-            console.error('Error loading price data:', e);
+            this.log(`Error loading price data: ${e.message}`, 'error');
             return defaultData;
         }
     }
-    
-    // Enhanced popup enabled check with detailed logging
+
+    // Enhanced popup enabled check with global configuration
     isPopupEnabled() {
         try {
-            const priceData = this.getPriceData();
-            const isEnabled = priceData.enabled !== false; // Default to enabled if not set
+            // Use global configuration as primary source
+            const isEnabled = this.config.enabled;
 
-            this.log(`Popup enabled check: ${isEnabled} (raw value: ${priceData.enabled})`);
+            this.log(`🔍 Popup enabled check: ${isEnabled} (source: global config)`);
             return isEnabled;
         } catch (e) {
-            this.log(`Error checking popup enabled status: ${e.message}`, 'error');
+            this.log(`❌ Error checking popup enabled status: ${e.message}`, 'error');
             return true; // Default to enabled on error
         }
     }
 
-    // Enhanced popup display logic with comprehensive validation
+    // Enhanced popup display logic with global configuration validation
     checkAndShowPopup() {
-        this.log('Starting popup display check...');
+        this.log('🔍 Starting popup display check...');
 
-        // First check if popup is enabled by admin
+        // First check if popup is enabled by global admin configuration
         const isEnabled = this.isPopupEnabled();
         if (!isEnabled) {
-            this.log('Popup disabled by admin - skipping display');
+            this.log('🚫 Popup disabled by global admin configuration - skipping display');
             return;
         }
 
-        // Check frequency control
+        // Check frequency control using global configuration
         const currentCount = this.getPopupCount();
-        this.log(`Current popup count: ${currentCount}/${this.maxDisplays}`);
+        this.log(`📊 Current popup count: ${currentCount}/${this.config.maxDisplays}`);
 
-        if (currentCount >= this.maxDisplays) {
-            this.log('Maximum popup displays reached - skipping display');
+        if (currentCount >= this.config.maxDisplays) {
+            this.log('⏰ Maximum popup displays reached - skipping display');
             return;
         }
 
         // All checks passed - schedule popup display
-        this.log(`Scheduling popup display in ${this.popupDelay}ms`);
+        this.log(`⏱️ Scheduling popup display in ${this.config.popupDelay}ms`);
         setTimeout(() => {
             // Double-check enabled status before showing (in case it changed during delay)
             if (this.isPopupEnabled()) {
                 this.showPopup();
             } else {
-                this.log('Popup was disabled during delay - cancelling display');
+                this.log('🚫 Popup was disabled during delay - cancelling display');
             }
-        }, this.popupDelay);
+        }, this.config.popupDelay);
     }
 
-    // Method to dynamically enable popup system
-    enablePopup() {
+    // Method to dynamically enable popup system (updates global config)
+    async enablePopup() {
         try {
-            const currentData = this.getPriceData();
-            const updatedData = { ...currentData, enabled: true };
-            localStorage.setItem(this.storageKey, JSON.stringify(updatedData));
-            this.log('Popup system enabled');
+            this.config.enabled = true;
+            await this.updateGlobalConfiguration({ enabled: true });
+            this.updateLocalStorage();
+            this.broadcastConfigUpdate({ popup: this.config });
+            this.log('✅ Popup system enabled globally');
             return true;
         } catch (error) {
-            this.log(`Error enabling popup: ${error.message}`, 'error');
+            this.log(`❌ Error enabling popup: ${error.message}`, 'error');
             return false;
         }
     }
 
-    // Method to dynamically disable popup system
-    disablePopup() {
+    // Method to dynamically disable popup system (updates global config)
+    async disablePopup() {
         try {
-            const currentData = this.getPriceData();
-            const updatedData = { ...currentData, enabled: false };
-            localStorage.setItem(this.storageKey, JSON.stringify(updatedData));
+            this.config.enabled = false;
+            await this.updateGlobalConfiguration({ enabled: false });
+            this.updateLocalStorage();
 
             // Also close any currently displayed popup
             this.closePopup();
 
-            this.log('Popup system disabled');
+            this.broadcastConfigUpdate({ popup: this.config });
+            this.log('🚫 Popup system disabled globally');
             return true;
         } catch (error) {
-            this.log(`Error disabling popup: ${error.message}`, 'error');
+            this.log(`❌ Error disabling popup: ${error.message}`, 'error');
             return false;
         }
     }
 
     // Method to toggle popup state
-    togglePopup() {
+    async togglePopup() {
         const currentlyEnabled = this.isPopupEnabled();
-        return currentlyEnabled ? this.disablePopup() : this.enablePopup();
+        return currentlyEnabled ? await this.disablePopup() : await this.enablePopup();
+    }
+
+    // Method to update price globally
+    async updatePrice(newPrice) {
+        try {
+            if (typeof newPrice !== 'number' || newPrice < 0) {
+                throw new Error('Invalid price value');
+            }
+
+            this.config.price = newPrice;
+            await this.updateGlobalConfiguration({ price: newPrice });
+            this.updateLocalStorage();
+            this.broadcastConfigUpdate({ popup: this.config });
+            this.log(`💰 Price updated globally to RM${newPrice.toFixed(2)}`);
+            return true;
+        } catch (error) {
+            this.log(`❌ Error updating price: ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    // Update global configuration file (simulated - in real implementation would POST to server)
+    async updateGlobalConfiguration(updates) {
+        try {
+            // In a real implementation, this would POST to a server endpoint
+            // For now, we'll update the local cache and broadcast the change
+            const cachedConfig = this.getCachedConfig();
+            if (cachedConfig && cachedConfig.config) {
+                const updatedConfig = {
+                    ...cachedConfig.config,
+                    popup: {
+                        ...cachedConfig.config.popup,
+                        ...updates,
+                        lastUpdated: new Date().toISOString()
+                    },
+                    admin: {
+                        ...cachedConfig.config.admin,
+                        lastModifiedBy: 'admin',
+                        changeLog: [
+                            ...(cachedConfig.config.admin?.changeLog || []),
+                            {
+                                timestamp: new Date().toISOString(),
+                                action: 'update',
+                                changes: updates
+                            }
+                        ]
+                    }
+                };
+
+                this.cacheConfig(updatedConfig);
+                this.log('🌐 Global configuration updated (cached)');
+            }
+
+            return true;
+        } catch (error) {
+            this.log(`❌ Error updating global configuration: ${error.message}`, 'error');
+            return false;
+        }
     }
     
     // Enhanced popup creation with validation and error handling
@@ -260,7 +525,7 @@ class DuratilePopupSystem {
 
         try {
             const priceData = this.getPriceData();
-            const price = priceData.price.toFixed(2);
+            const price = this.config.price.toFixed(2);
 
             this.log(`Creating popup with price: RM${price}`);
 
@@ -363,7 +628,7 @@ class DuratilePopupSystem {
     // Method to reset popup count (for testing/admin purposes)
     resetPopupCount() {
         try {
-            this.setCookie(this.cookieName, '0', this.cookieExpireDays);
+            this.setCookie(this.config.cookieName, '0', this.config.cookieExpireDays);
             this.log('Popup count reset to 0');
             return true;
         } catch (error) {
@@ -378,13 +643,13 @@ class DuratilePopupSystem {
 
         // Temporarily reset count
         const originalCount = this.getPopupCount();
-        this.setCookie(this.cookieName, '0', this.cookieExpireDays);
+        this.setCookie(this.config.cookieName, '0', this.config.cookieExpireDays);
 
         // Show popup
         this.showPopup();
 
         // Restore original count (minus 1 since showPopup increments it)
-        this.setCookie(this.cookieName, originalCount.toString(), this.cookieExpireDays);
+        this.setCookie(this.config.cookieName, originalCount.toString(), this.config.cookieExpireDays);
     }
 
     // Enable debug mode
@@ -409,8 +674,11 @@ window.duratilePopupDebug = {
     enable: () => duratilePopup.enablePopup(),
     disable: () => duratilePopup.disablePopup(),
     toggle: () => duratilePopup.togglePopup(),
+    updatePrice: (price) => duratilePopup.updatePrice(price),
     reset: () => duratilePopup.resetPopupCount(),
     forceShow: () => duratilePopup.forceShowPopup(),
     enableDebug: () => duratilePopup.enableDebugMode(),
-    disableDebug: () => duratilePopup.disableDebugMode()
+    disableDebug: () => duratilePopup.disableDebugMode(),
+    reloadConfig: () => duratilePopup.loadGlobalConfiguration(),
+    getConfig: () => duratilePopup.config
 };

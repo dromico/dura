@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-31T10:00:00Z",
+  "popup": {
+    "enabled": true,
+    "price": 70.00,
+    "maxDisplays": 3,
+    "cookieExpireDays": 30,
+    "popupDelay": 2000,
+    "message": {
+      "title": "🎉 Special Promotion!",
+      "subtitle": "Promotion Sale, Duratile",
+      "cta": "Contact us for Enquiry",
+      "buttonPrimary": "Contact Us Now",
+      "buttonSecondary": "Maybe Later"
+    },
+    "styling": {
+      "primaryColor": "#667eea",
+      "secondaryColor": "#764ba2",
+      "borderRadius": "8px"
+    }
+  },
+  "admin": {
+    "lastModifiedBy": "system",
+    "changeLog": [
+      {
+        "timestamp": "2025-01-31T10:00:00Z",
+        "action": "initial_setup",
+        "changes": {
+          "enabled": true,
+          "price": 70.00
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "configId": "duratile-popup-config",
+    "environment": "production",
+    "cacheTTL": 300
+  }
+}

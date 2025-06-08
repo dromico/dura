@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Functionality Test - D'Romico's Solution</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .test-card { 
+            padding: 20px; 
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px; 
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .test-card h3 {
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+        .status { 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+        .pass { background: rgba(40, 167, 69, 0.8); color: white; }
+        .fail { background: rgba(220, 53, 69, 0.8); color: white; }
+        .info { background: rgba(23, 162, 184, 0.8); color: white; }
+        .warn { background: rgba(255, 193, 7, 0.8); color: #212529; }
+        
+        button { 
+            padding: 12px 20px; 
+            margin: 8px 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .config-display { 
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            color: #e2e8f0;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+            border-left: 3px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 D'Romico's Global Functionality Test</h1>
+            <p>Testing cross-browser, cross-device global state management</p>
+        </div>
+        
+        <div class="instructions">
+            <h3>🧪 Testing Instructions</h3>
+            <div class="step">
+                <strong>Step 1:</strong> Open this page in multiple browser tabs/windows
+            </div>
+            <div class="step">
+                <strong>Step 2:</strong> Open the admin panel (duratileprice.html) in another tab
+            </div>
+            <div class="step">
+                <strong>Step 3:</strong> Open a product page (duratilexlmarblin.html) in another tab
+            </div>
+            <div class="step">
+                <strong>Step 4:</strong> Use the controls below to test global synchronization
+            </div>
+            <div class="step">
+                <strong>Step 5:</strong> Verify changes appear instantly across all tabs/windows
+            </div>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <h3>🔍 Current Global State</h3>
+                <div id="global-state" class="config-display">Loading global state...</div>
+                <button onclick="refreshGlobalState()">Refresh State</button>
+                <button onclick="loadFromServer()">Load from Server</button>
+            </div>
+
+            <div class="test-card">
+                <h3>🎛️ Global Controls</h3>
+                <button onclick="globalEnable()">Global Enable</button>
+                <button onclick="globalDisable()">Global Disable</button>
+                <button onclick="globalToggle()">Global Toggle</button>
+                <div id="control-status" class="status info">Ready for global operations</div>
+            </div>
+
+            <div class="test-card">
+                <h3>💰 Global Price Management</h3>
+                <input type="number" id="newGlobalPrice" placeholder="Enter new price" step="0.01" min="0" style="padding: 8px; margin: 5px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white;">
+                <button onclick="updateGlobalPrice()">Update Global Price</button>
+                <button onclick="randomPriceTest()">Random Price Test</button>
+                <div id="price-status" class="status info">Global price management ready</div>
+            </div>
+
+            <div class="test-card">
+                <h3>📡 Cross-Tab Communication</h3>
+                <button onclick="testBroadcast()">Test Broadcast</button>
+                <button onclick="simulateAdminChange()">Simulate Admin Change</button>
+                <button onclick="testStorageSync()">Test Storage Sync</button>
+                <div id="broadcast-status" class="status info">Cross-tab testing ready</div>
+            </div>
+
+            <div class="test-card">
+                <h3>🧪 Automated Tests</h3>
+                <button onclick="runGlobalTests()">Run Global Tests</button>
+                <button onclick="testCrossBrowserSync()">Cross-Browser Test</button>
+                <button onclick="stressTestGlobal()">Stress Test</button>
+                <div id="test-status" class="status info">Automated testing ready</div>
+            </div>
+
+            <div class="test-card">
+                <h3>📊 Real-time Monitoring</h3>
+                <div id="monitor-display" class="config-display">Monitoring inactive</div>
+                <button onclick="startMonitoring()">Start Monitoring</button>
+                <button onclick="stopMonitoring()">Stop Monitoring</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the enhanced popup system -->
+    <script src="js/duratile-popup.js"></script>
+    
+    <script>
+        let monitoringInterval = null;
+        let broadcastChannel = null;
+
+        // Initialize broadcast channel for testing
+        function initializeBroadcast() {
+            try {
+                if ('BroadcastChannel' in window) {
+                    broadcastChannel = new BroadcastChannel('duratile-popup-sync');
+                    broadcastChannel.addEventListener('message', (event) => {
+                        console.log('📡 Received broadcast:', event.data);
+                        updateMonitorDisplay(`Received: ${JSON.stringify(event.data, null, 2)}`);
+                        refreshGlobalState();
+                    });
+                    console.log('📡 Test broadcast channel initialized');
+                }
+            } catch (error) {
+                console.error('Broadcast initialization error:', error);
+            }
+        }
+
+        function refreshGlobalState() {
+            try {
+                const status = duratilePopup.getSystemStatus();
+                const config = duratilePopup.config;
+                
+                const stateHTML = `
+Global Configuration:
+  Enabled: ${config.enabled}
+  Price: RM${config.price.toFixed(2)}
+  Max Displays: ${config.maxDisplays}
+  Cookie Expiry: ${config.cookieExpireDays} days
+
+System Status:
+  Initialized: ${status.isInitialized}
+  Current Count: ${status.currentCount}/${status.maxDisplays}
+  Has Active Popup: ${status.hasActivePopup}
+  
+Last Updated: ${new Date().toLocaleTimeString()}
+                `;
+                
+                document.getElementById('global-state').textContent = stateHTML;
+            } catch (error) {
+                document.getElementById('global-state').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function loadFromServer() {
+            try {
+                await duratilePopup.loadGlobalConfiguration();
+                refreshGlobalState();
+                updateControlStatus('Configuration reloaded from server', 'pass');
+            } catch (error) {
+                updateControlStatus(`Server load error: ${error.message}`, 'fail');
+            }
+        }
+
+        async function globalEnable() {
+            try {
+                const result = await duratilePopup.enablePopup();
+                updateControlStatus(`Global Enable: ${result ? 'SUCCESS' : 'FAILED'}`, result ? 'pass' : 'fail');
+                refreshGlobalState();
+            } catch (error) {
+                updateControlStatus(`Enable Error: ${error.message}`, 'fail');
+            }
+        }
+
+        async function globalDisable() {
+            try {
+                const result = await duratilePopup.disablePopup();
+                updateControlStatus(`Global Disable: ${result ? 'SUCCESS' : 'FAILED'}`, result ? 'pass' : 'fail');
+                refreshGlobalState();
+            } catch (error) {
+                updateControlStatus(`Disable Error: ${error.message}`, 'fail');
+            }
+        }
+
+        async function globalToggle() {
+            try {
+                const result = await duratilePopup.togglePopup();
+                const newState = duratilePopup.isPopupEnabled();
+                updateControlStatus(`Global Toggle: ${result ? 'SUCCESS' : 'FAILED'} - Now ${newState ? 'ENABLED' : 'DISABLED'}`, result ? 'pass' : 'fail');
+                refreshGlobalState();
+            } catch (error) {
+                updateControlStatus(`Toggle Error: ${error.message}`, 'fail');
+            }
+        }
+
+        async function updateGlobalPrice() {
+            try {
+                const newPrice = parseFloat(document.getElementById('newGlobalPrice').value);
+                if (isNaN(newPrice) || newPrice < 0) {
+                    throw new Error('Invalid price value');
+                }
+                
+                const result = await duratilePopup.updatePrice(newPrice);
+                updatePriceStatus(`Global Price Update: ${result ? 'SUCCESS' : 'FAILED'} - RM${newPrice.toFixed(2)}`, result ? 'pass' : 'fail');
+                document.getElementById('newGlobalPrice').value = '';
+                refreshGlobalState();
+            } catch (error) {
+                updatePriceStatus(`Price Update Error: ${error.message}`, 'fail');
+            }
+        }
+
+        async function randomPriceTest() {
+            const randomPrice = Math.round((Math.random() * 50 + 50) * 100) / 100; // Random price between 50-100
+            document.getElementById('newGlobalPrice').value = randomPrice;
+            await updateGlobalPrice();
+        }
+
+        function testBroadcast() {
+            if (broadcastChannel) {
+                const testMessage = {
+                    type: 'TEST_MESSAGE',
+                    timestamp: Date.now(),
+                    message: 'Test broadcast from global test page'
+                };
+                broadcastChannel.postMessage(testMessage);
+                updateBroadcastStatus('Test message broadcasted', 'pass');
+            } else {
+                updateBroadcastStatus('BroadcastChannel not available', 'warn');
+            }
+        }
+
+        async function simulateAdminChange() {
+            try {
+                // Simulate what the admin panel would do
+                const currentEnabled = duratilePopup.isPopupEnabled();
+                const newState = !currentEnabled;
+                
+                if (newState) {
+                    await duratilePopup.enablePopup();
+                } else {
+                    await duratilePopup.disablePopup();
+                }
+                
+                updateBroadcastStatus(`Simulated admin change: ${newState ? 'ENABLED' : 'DISABLED'}`, 'pass');
+                refreshGlobalState();
+            } catch (error) {
+                updateBroadcastStatus(`Admin simulation error: ${error.message}`, 'fail');
+            }
+        }
+
+        function testStorageSync() {
+            // Trigger a storage event by updating localStorage directly
+            const testData = {
+                enabled: !duratilePopup.isPopupEnabled(),
+                price: duratilePopup.config.price + 1,
+                lastUpdated: new Date().toLocaleString(),
+                testFlag: true
+            };
+            
+            localStorage.setItem('duratile_price_data', JSON.stringify(testData));
+            updateBroadcastStatus('Storage sync test triggered', 'info');
+            
+            // Refresh after a moment to see if sync worked
+            setTimeout(refreshGlobalState, 500);
+        }
+
+        async function runGlobalTests() {
+            updateTestStatus('Running global tests...', 'info');
+            
+            try {
+                const tests = [];
+                
+                // Test 1: Configuration loading
+                await duratilePopup.loadGlobalConfiguration();
+                tests.push('Config loading: PASS');
+                
+                // Test 2: Enable/disable
+                await duratilePopup.disablePopup();
+                const disabled = !duratilePopup.isPopupEnabled();
+                await duratilePopup.enablePopup();
+                const enabled = duratilePopup.isPopupEnabled();
+                tests.push(`Toggle test: ${disabled && enabled ? 'PASS' : 'FAIL'}`);
+                
+                // Test 3: Price update
+                const originalPrice = duratilePopup.config.price;
+                const testPrice = originalPrice + 5;
+                await duratilePopup.updatePrice(testPrice);
+                const priceUpdated = duratilePopup.config.price === testPrice;
+                await duratilePopup.updatePrice(originalPrice);
+                tests.push(`Price update: ${priceUpdated ? 'PASS' : 'FAIL'}`);
+                
+                const allPassed = tests.every(test => test.includes('PASS'));
+                updateTestStatus(`Global Tests: ${allPassed ? 'ALL PASSED' : 'SOME FAILED'}\n${tests.join('\n')}`, allPassed ? 'pass' : 'warn');
+                
+            } catch (error) {
+                updateTestStatus(`Global test error: ${error.message}`, 'fail');
+            }
+        }
+
+        function testCrossBrowserSync() {
+            updateTestStatus('Cross-browser test: Open this page in different browsers and compare states', 'info');
+            refreshGlobalState();
+        }
+
+        async function stressTestGlobal() {
+            updateTestStatus('Running stress test...', 'info');
+            
+            let successCount = 0;
+            const iterations = 20;
+            
+            for (let i = 0; i < iterations; i++) {
+                try {
+                    await duratilePopup.togglePopup();
+                    successCount++;
+                } catch (error) {
+                    console.error(`Stress test iteration ${i} failed:`, error);
+                }
+            }
+            
+            const success = successCount === iterations;
+            updateTestStatus(`Stress Test: ${successCount}/${iterations} operations successful`, success ? 'pass' : 'warn');
+        }
+
+        function startMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+            }
+            
+            monitoringInterval = setInterval(() => {
+                const timestamp = new Date().toLocaleTimeString();
+                const status = duratilePopup.getSystemStatus();
+                updateMonitorDisplay(`[${timestamp}] Monitoring active\nEnabled: ${status.isEnabled}\nPrice: RM${duratilePopup.config.price.toFixed(2)}\nCount: ${status.currentCount}`);
+            }, 2000);
+            
+            updateMonitorDisplay('Real-time monitoring started...');
+        }
+
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+            }
+            updateMonitorDisplay('Monitoring stopped');
+        }
+
+        // Helper functions
+        function updateControlStatus(message, type) {
+            const element = document.getElementById('control-status');
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function updatePriceStatus(message, type) {
+            const element = document.getElementById('price-status');
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function updateBroadcastStatus(message, type) {
+            const element = document.getElementById('broadcast-status');
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function updateTestStatus(message, type) {
+            const element = document.getElementById('test-status');
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        function updateMonitorDisplay(message) {
+            document.getElementById('monitor-display').textContent = message;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeBroadcast();
+            
+            // Wait for popup system to initialize
+            setTimeout(() => {
+                refreshGlobalState();
+                duratilePopup.enableDebugMode();
+                console.log('🌐 D\'Romico\'s Global Functionality Test initialized');
+                console.log('💡 Use the controls above to test global synchronization');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

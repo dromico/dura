@@ -91,7 +91,7 @@ Added to `duratilexlmarblin.html`:
 ### localStorage Schema
 ```javascript
 {
-  "price": 25.00,                    // Current price (number)
+  "price": 70.00,                    // Current price (number)
   "lastUpdated": "1/15/2025, 3:30:00 PM", // Last update timestamp
   "popupDisplayCount": 5,            // Total displays (statistics)
   "enabled": true                    // Popup enabled/disabled state
